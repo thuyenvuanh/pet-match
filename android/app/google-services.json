@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1000051075559",
+    "project_id": "petmatch-6e802",
+    "storage_bucket": "petmatch-6e802.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1000051075559:android:b40480586ed83758d83542",
+        "android_client_info": {
+          "package_name": "com.example.pet_match"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1000051075559-jq2uec9gojcig3bfks63user4jro3u1p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDnbvBEnXCk8NevhZvpxbHApRbUFSaqEE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1000051075559-jq2uec9gojcig3bfks63user4jro3u1p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
