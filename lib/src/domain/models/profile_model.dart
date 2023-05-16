@@ -10,7 +10,8 @@ class Profile {
   String? gender;
   double? height;
   double? weight;
-  File? avatar;
+  File? avatarFile;
+  String? avatar;
   String? cover;
   DateTime? birthday;
   Location? location;
@@ -20,32 +21,31 @@ class Profile {
 
   Profile(
       {this.id,
-        this.breed,
-        this.name,
-        this.gender,
-        this.height,
-        this.weight,
-        this.avatar,
-        this.cover,
-        this.birthday,
-        this.location,
-        this.introduction,
-        this.interests,
-        this.gallery});
+      this.breed,
+      this.name,
+      this.gender,
+      this.height,
+      this.weight,
+      this.avatarFile,
+      this.cover,
+      this.birthday,
+      this.location,
+      this.introduction,
+      this.interests,
+      this.gallery});
 
   Profile.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     breed = json['type'] != null ? Breed.fromJson(json['type']) : null;
     name = json['name'];
     gender = json['gender'];
-    avatar = File(json['avatar']);
+    avatar = json['avatar'];
     cover = json['cover'];
     height = json['height'];
     weight = json['weight'];
     birthday = DateTime.fromMillisecondsSinceEpoch(int.parse(json['birthday']));
-    location = json['location'] != null
-        ? Location.fromJson(json['location'])
-        : null;
+    location =
+        json['location'] != null ? Location.fromJson(json['location']) : null;
     introduction = json['introduction'];
     if (json['interests'] != null) {
       interests = <Breed>[];
@@ -56,6 +56,12 @@ class Profile {
     gallery = json['gallery'];
   }
 
+  Profile.fromShortJson(Map<String, dynamic> json) {
+    id = json['id'];
+    avatar = json['avatar'];
+    name = json['name'];
+  }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
@@ -64,13 +70,11 @@ class Profile {
     }
     data['name'] = name;
     data['gender'] = gender;
-    if(avatar != null) {
-      data['avatar'] = avatar!.path;
-    }
+    data['avatar'] = avatar;
     data['cover'] = cover;
     data['height'] = height;
     data['weight'] = weight;
-    if(birthday != null) {
+    if (birthday != null) {
       data['birthday'] = birthday!.millisecondsSinceEpoch.toString();
     }
     if (location != null) {
@@ -84,6 +88,3 @@ class Profile {
     return data;
   }
 }
-
-
-

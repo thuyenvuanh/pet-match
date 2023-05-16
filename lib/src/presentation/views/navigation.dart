@@ -1,10 +1,8 @@
 import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pet_match/src/config/router/routes.dart';
-import 'package:pet_match/src/presentation/blocs/home_bloc/home_bloc.dart';
 import 'package:pet_match/src/presentation/views/matches_screen.dart';
 import 'package:pet_match/src/presentation/views/message_screen.dart';
 import 'package:pet_match/src/presentation/views/user_screen.dart';
@@ -92,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Positioned.fill(
           child: Offstage(
             offstage: _currentIndex != 0,
-            child: SwipeScreen(),
+            child: const SwipeScreen(),
           ),
         ),
         Positioned.fill(

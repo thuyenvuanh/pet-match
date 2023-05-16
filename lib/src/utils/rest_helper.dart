@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
@@ -9,8 +8,8 @@ class RestClient {
   static const _port = 8080;
   static const _scheme = "https";
 
-  static Future<Either<Failure, Map<String, dynamic>>> get({
-    required String path,
+  Future<Either<Failure, String>> get(
+    String path, {
     Map<String, String>? headers,
     Map<String, dynamic>? queryParams,
   }) async {
@@ -24,8 +23,7 @@ class RestClient {
     var res = await http.get(uri, headers: headers);
     switch (res.statusCode) {
       case 200:
-      case 201:
-        return Right(json.decode(res.body));
+        return Right(res.body);
       case 401:
         return Left(RequestFailure(res.statusCode, "Unauthenticated"));
       case 403:

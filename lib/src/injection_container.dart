@@ -13,29 +13,37 @@ import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/create_profile_bloc/create_profile_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/home_bloc/home_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/onboarding_bloc/onboarding_bloc.dart';
+import 'package:pet_match/src/presentation/blocs/swipe_bloc/swipe_bloc.dart';
+import 'package:pet_match/src/utils/rest_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
   //future instances - ensure to be initialized
-  sl.registerLazySingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
+  sl.registerLazySingletonAsync<SharedPreferences>(
+      () => SharedPreferences.getInstance());
   await sl.isReady<SharedPreferences>();
   //! blocs
   sl.registerFactory(() => AuthBloc(sl()));
   sl.registerFactory(() => OnboardingBloc(sl())..add(ReadOnboardingStatus()));
   sl.registerFactory(() => CreateProfileBloc(sl()));
   sl.registerFactory(() => HomeBloc(sl()));
+  sl.registerFactory(() => SwipeBloc());
 
   //! repositories
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   sl.registerLazySingleton<OnboardingRepository>(
       () => OnboardingRepositoryImpl(sl()));
-  sl.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(sl(), sl()));
+  sl.registerLazySingleton<ProfileRepository>(
+      () => ProfileRepositoryImpl(sl(), sl()));
 
   //! Data sources
   sl.registerLazySingleton(() => FirebaseDataSource());
   sl.registerLazySingleton(() => OnboardingLocalDatasource(sl()));
   sl.registerLazySingleton(() => ProfileLocalDatasource(sl()));
-  sl.registerLazySingleton(() => ProfileRemoteDataSource());
+  sl.registerLazySingleton(() => ProfileRemoteDataSource(sl()));
+
+  //others
+  sl.registerSingleton(() => RestClient());
 }

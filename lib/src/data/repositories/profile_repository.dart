@@ -8,12 +8,10 @@ import 'package:pet_match/src/domain/repositories/profile_repository.dart';
 import 'package:pet_match/src/utils/error/failure.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
-
   final ProfileRemoteDataSource remoteDataSource;
   final ProfileLocalDatasource localDatasource;
 
   ProfileRepositoryImpl(this.remoteDataSource, this.localDatasource);
-
 
   @override
   Future<Either<Failure, Profile>> deleteProfile(String profileId) {
@@ -27,15 +25,14 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<Either<Failure, List<Profile>>> getProfiles(String accountId) {
-    // TODO: implement getProfiles
-    throw UnimplementedError();
+  Future<Either<Failure, List<Profile>>> getProfiles(String userId) {
+    return remoteDataSource.getProfiles(userId);
   }
 
   @override
   Future<Either<Failure, Profile>> newProfile(Profile profile) async {
     dev.log("Mock return success");
-    if(localDatasource.getActiveProfile().isLeft()) {
+    if (localDatasource.getActiveProfile().isLeft()) {
       localDatasource.cacheActiveProfile(profile);
     }
     return Right(profile);
@@ -56,5 +53,4 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Either<Failure, Profile> getCurrentActiveProfile() {
     return localDatasource.getActiveProfile();
   }
-
 }

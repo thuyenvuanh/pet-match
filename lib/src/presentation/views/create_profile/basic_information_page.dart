@@ -60,7 +60,7 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
         widget.goNext();
       }
     });
-    _avatar = _bloc.profile.avatar;
+    _avatar = _bloc.profile.avatarFile;
     _birthday = _bloc.profile.birthday;
     _nameEditController.text = _bloc.profile.name ?? "";
     _weightEditController.text = _bloc.profile.weight?.toString() ?? "";

@@ -1,4 +1,3 @@
-import 'dart:developer' as dev;
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -8,7 +7,14 @@ import 'package:pet_match/src/presentation/provider/swipe_provider.dart';
 import 'package:provider/provider.dart';
 
 class SwipeCard extends StatefulWidget {
-  const SwipeCard({Key? key}) : super(key: key);
+  const SwipeCard({
+    Key? key,
+    required this.url,
+    required this.isFront,
+  }) : super(key: key);
+
+  final String url;
+  final bool isFront;
 
   @override
   State<SwipeCard> createState() => _SwipeCardState();
@@ -27,7 +33,7 @@ class _SwipeCardState extends State<SwipeCard> {
 
   @override
   Widget build(BuildContext context) {
-    return buildFrontCard();
+    return widget.isFront ? buildFrontCard() : buildCard();
   }
 
   Widget buildFrontCard() => GestureDetector(
@@ -49,14 +55,15 @@ class _SwipeCardState extends State<SwipeCard> {
             final position = provider.position;
             final maxHeight = constraints.maxHeight;
             final maxWidth = constraints.maxWidth;
+            final animDur = provider.isDragging ? 0 : 100;
             var transform = Matrix4.identity()
               ..translate(maxWidth / 2, maxHeight)
               ..rotateZ(provider.angle * pi / 180)
               ..translate(-(maxWidth / 2), -(maxHeight));
 
             return AnimatedContainer(
-              duration: const Duration(milliseconds: 0),
-              curve: Curves.linear,
+              duration: Duration(milliseconds: animDur),
+              curve: Curves.easeInOut,
               transform: transform..translate(position.dx, 0),
               child: buildCard(),
             );
@@ -77,7 +84,7 @@ class _SwipeCardState extends State<SwipeCard> {
           children: [
             Positioned.fill(
               child: Image.network(
-                "https://demostore.properlife.vn/wp-content/uploads/2023/02/dog.jpg",
+                widget.url,
                 fit: BoxFit.fitHeight,
               ),
             ),

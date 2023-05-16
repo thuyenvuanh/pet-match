@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pet_match/src/injection_container.dart';
+import 'package:pet_match/src/presentation/blocs/swipe_bloc/swipe_bloc.dart';
 import 'package:pet_match/src/presentation/provider/swipe_provider.dart';
+import 'package:pet_match/src/presentation/widgets/custom_circular_indicator.dart';
 import 'package:pet_match/src/presentation/widgets/swipable_card.dart';
 import 'package:pet_match/src/utils/constant.dart';
 import 'package:provider/provider.dart';
@@ -28,8 +31,8 @@ class _SwipeScreenState extends State<SwipeScreen> {
             const SizedBox(height: 24),
             Expanded(
               child: ChangeNotifierProvider(
-                create: (_) => SwipeProvider(),
-                child: SwipeCard(),
+                create: (context) => SwipeProvider(sl<SwipeBloc>()),
+                child: const SwipeStack(),
               ),
             ),
             const SizedBox(height: 35),
@@ -120,6 +123,32 @@ class ElevatedCircleButton extends StatelessWidget {
           child: SvgPicture.asset(assetImage),
         ),
       ),
+    );
+  }
+}
+
+class SwipeStack extends StatefulWidget {
+  const SwipeStack({super.key});
+
+  @override
+  State<SwipeStack> createState() => _SwipeStackState();
+}
+
+class _SwipeStackState extends State<SwipeStack> {
+  @override
+  Widget build(BuildContext context) {
+    final profiles = Provider.of<SwipeProvider>(context).profiles;
+    return Stack(
+      alignment: Alignment.center,
+      children: profiles
+          .map<Widget>(
+            (e) => SwipeCard(
+              url: e,
+              isFront: Provider.of<SwipeProvider>(context).profiles.last == e,
+            ),
+          )
+          .toList()
+        ..insert(0, const Positioned(child: CustomColorCircularIndicator())),
     );
   }
 }

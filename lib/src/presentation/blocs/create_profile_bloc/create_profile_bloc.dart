@@ -22,7 +22,7 @@ class CreateProfileBloc extends Bloc<CreateProfileEvent, CreateProfileState> {
       : newProfile = Profile(),
         super(CreateProfileInitial()) {
     on<StartCreateProfile>((event, emit) {
-      Breed breed = Breed(id: "",name: "");
+      Breed breed = Breed(id: "", name: "");
       emit(const BreedSaved(null));
     });
     on<SaveBreed>((event, emit) {
@@ -35,15 +35,19 @@ class CreateProfileBloc extends Bloc<CreateProfileEvent, CreateProfileState> {
       }
     });
     on<SaveBasicInformation>((event, emit) {
-      if (event.name == null || event.name!.isEmpty || event.height == null ||
-          event.weight == null || event.birthday == null || event.gender == null) {
+      if (event.name == null ||
+          event.name!.isEmpty ||
+          event.height == null ||
+          event.weight == null ||
+          event.birthday == null ||
+          event.gender == null) {
         emit(CreateProfileError(basicRequired));
       } else {
         newProfile.name = event.name;
         newProfile.height = event.height;
         newProfile.weight = event.weight;
         newProfile.birthday = event.birthday;
-        newProfile.avatar = event.avatar;
+        newProfile.avatarFile = event.avatar;
         newProfile.gender = event.gender;
         emit(BasicInformationSaved(newProfile));
       }
