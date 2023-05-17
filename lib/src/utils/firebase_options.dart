@@ -63,6 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1000051075559',
     projectId: 'petmatch-6e802',
     storageBucket: 'petmatch-6e802.appspot.com',
+    androidClientId: '1000051075559-mbllbm8rsccfc9nm8b561k405q06lou8.apps.googleusercontent.com',
     iosClientId: '1000051075559-gdsppsaspenpnlg5mbhn9gdkaeu1e547.apps.googleusercontent.com',
     iosBundleId: 'com.example.petMatch',
   );
