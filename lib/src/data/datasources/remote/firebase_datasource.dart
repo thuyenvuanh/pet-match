@@ -3,10 +3,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pet_match/src/utils/error/failure.dart';
 
 class FirebaseDataSource {
+  static const String firebaseAuthClientId =
+      "1000051075559-gdsppsaspenpnlg5mbhn9gdkaeu1e547.apps.googleusercontent.com";
+
   final fi = FirebaseAuth.instance;
 
   Future<UserCredential> signInGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAccount? googleUser =
+        await GoogleSignIn(clientId: firebaseAuthClientId).signIn();
     final GoogleSignInAuthentication? googleAuth =
         await googleUser?.authentication;
     final credential = GoogleAuthProvider.credential(
