@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pet_match/src/presentation/provider/swipe_provider.dart';
+import 'package:pet_match/src/utils/constant.dart';
 import 'package:provider/provider.dart';
 
 class SwipeCard extends StatefulWidget {
@@ -55,7 +56,7 @@ class _SwipeCardState extends State<SwipeCard> {
             final position = provider.position;
             final maxHeight = constraints.maxHeight;
             final maxWidth = constraints.maxWidth;
-            final animDur = provider.isDragging ? 0 : 100;
+            final animDur = provider.isDragging ? 0 : 400;
             var transform = Matrix4.identity()
               ..translate(maxWidth / 2, maxHeight)
               ..rotateZ(provider.angle * pi / 180)
@@ -65,18 +66,118 @@ class _SwipeCardState extends State<SwipeCard> {
               duration: Duration(milliseconds: animDur),
               curve: Curves.easeInOut,
               transform: transform..translate(position.dx, 0),
-              child: buildCard(),
+              child: Stack(
+                children: [
+                  buildCard(),
+                  buildOverlay(),
+                  buildStamps(),
+                ],
+              ),
             );
           },
         ),
       );
+
+  Widget buildOverlay() {
+    final provider = Provider.of<SwipeProvider>(context);
+    var color = Colors.transparent;
+    if (provider.angle > 0) {
+      color = Resource.primaryTintColor;
+    } else if (provider.angle < 0) {
+      color = Colors.grey.withOpacity(0.5);
+    }
+    return Positioned.fill(
+      child: Opacity(
+        opacity: provider.stampOpacity,
+        child: Container(
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(24),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildStamps() {
+    final provider = Provider.of<SwipeProvider>(context);
+    final status = provider.getSwipeStatus();
+    switch (status) {
+      case SwipeStatus.like:
+        return buildLikeStamp(provider.angle, provider.stampOpacity);
+      case SwipeStatus.pass:
+        return buildPassStamp(provider.angle, provider.stampOpacity);
+      default:
+        return const SizedBox();
+    }
+  }
+
+  Widget buildLikeStamp(double angle, double opacity) {
+    return Positioned(
+      top: 50,
+      left: 50,
+      child: Opacity(
+        opacity: opacity,
+        child: Transform.rotate(
+          angle: -pi / 6,
+          child: Container(
+            height: 80,
+            width: 80,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(40),
+                color: Colors.white,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x12000000),
+                    blurRadius: 50,
+                    offset: Offset(0, 20),
+                  )
+                ]),
+            child: Center(
+              child: SvgPicture.asset("assets/images/svgs/stamp-heart.svg"),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildPassStamp(double angle, double opacity) {
+    return Positioned(
+      right: 50,
+      top: 50,
+      child: Opacity(
+        opacity: opacity,
+        child: Transform.rotate(
+          angle: 30,
+          child: Container(
+            height: 80,
+            width: 80,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(40),
+                color: Colors.white,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x12000000),
+                    blurRadius: 50,
+                    offset: Offset(0, 20),
+                  )
+                ]),
+            child: Center(
+              child: SvgPicture.asset("assets/images/svgs/stamp-pass.svg"),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget buildCard() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.amber,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Stack(

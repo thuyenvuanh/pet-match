@@ -20,7 +20,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<Either<Failure, Profile>> getProfileById(String profileId) async {
-    // TODO: implement getProfileById
     return Left(SharedPreferencesFailure.empty());
   }
 

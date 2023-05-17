@@ -10,9 +10,10 @@ part 'swipe_state.dart';
 
 class SwipeBloc extends Bloc<SwipeEvent, SwipeState> {
   SwipeBloc() : super(SwipeInitial()) {
-    on<FetchNewProfiles>((event, emit) {
+    on<FetchNewProfiles>((event, emit) async {
       dev.log('fetching new profiles');
-      emit(FetchNewProfilesOk([]));
+      await Future.delayed(const Duration(seconds: 10))
+          .then((value) => emit(FetchNewProfilesOk(const [])));
     });
     on<SwipeLike>((event, emit) {
       dev.log('SwipeLike');

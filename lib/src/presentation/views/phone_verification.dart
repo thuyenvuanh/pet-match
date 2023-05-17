@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pet_match/src/config/router/routes.dart';
 import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
+import 'package:pet_match/src/presentation/widgets/loading_indicator.dart';
 import 'package:pet_match/src/presentation/widgets/otp_input_layout.dart';
 import 'package:pet_match/src/presentation/widgets/phone_input_layout.dart';
 import 'package:pet_match/src/presentation/widgets/rounded_back_button.dart';
@@ -116,9 +117,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                               color: Colors.black),
                         ],
                       ),
-                      child: const Center(
-                        child: CircularProgressIndicator.adaptive(),
-                      ),
+                      child: const LoadingIndicator(),
                     ),
                   )
                 : const Positioned.fill(child: SizedBox()),
