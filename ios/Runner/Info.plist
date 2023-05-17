@@ -53,5 +53,14 @@
 	<string>Need to upload image</string>
 	<key>NSMicrophoneUsageDescription </key>
 	<string>Need to upload image</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1000051075559-gdsppsaspenpnlg5mbhn9gdkaeu1e547</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
