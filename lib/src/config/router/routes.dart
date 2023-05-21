@@ -5,11 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pet_match/src/domain/repositories/onboarding_repository.dart';
 import 'package:pet_match/src/domain/repositories/profile_repository.dart';
+import 'package:pet_match/src/domain/repositories/storage_repository.dart';
 import 'package:pet_match/src/injection_container.dart';
 import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/create_profile_bloc/create_profile_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/home_bloc/home_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/onboarding_bloc/onboarding_bloc.dart';
+import 'package:pet_match/src/presentation/blocs/profile_bloc/profile_bloc.dart';
 import 'package:pet_match/src/presentation/views/create_profile/create_profile_screen.dart';
 import 'package:pet_match/src/presentation/views/navigation.dart';
 import 'package:pet_match/src/presentation/views/onboarding.dart';
@@ -27,8 +29,14 @@ class RouteGenerator {
       );
 
   static homeRoute() => CupertinoPageRoute(
-        builder: (context) => BlocProvider(
-          create: (context) => sl<HomeBloc>()..add(GetInitialData()),
+        builder: (context) => MultiBlocProvider(
+          providers: [
+            BlocProvider(
+                create: (context) => sl<HomeBloc>()..add(GetInitialData())),
+            BlocProvider(
+              create: (context) => sl<ProfileBloc>(),
+            ),
+          ],
           child: const HomeScreen(),
         ),
       );
@@ -41,7 +49,10 @@ class RouteGenerator {
       );
 
   static selectProfileRoute() => CupertinoModalPopupRoute(
-        builder: (context) => const ProfileSelectScreen(),
+        builder: (context) => BlocProvider(
+          create: (context) => sl<ProfileBloc>(),
+          child: const ProfileSelectScreen(),
+        ),
       );
 
   static phoneVerificationRoute() => CupertinoPageRoute(
@@ -53,8 +64,10 @@ class RouteGenerator {
 
   static createProfileRoute() => CupertinoPageRoute(
         builder: (context) => BlocProvider(
-          create: (context) => CreateProfileBloc(sl<ProfileRepository>())
-            ..add(StartCreateProfile()),
+          create: (context) => CreateProfileBloc(
+            sl<ProfileRepository>(),
+            sl<StorageRepository>(),
+          )..add(StartCreateProfile()),
           child: const CreateProfileScreen(),
         ),
       );

@@ -8,9 +8,10 @@ class FirebaseDataSource {
 
   final fi = FirebaseAuth.instance;
 
+  String? get userId => fi.currentUser?.uid;
+
   Future<UserCredential> signInGoogle() async {
-    final GoogleSignInAccount? googleUser =
-        await GoogleSignIn(clientId: firebaseAuthClientId).signIn();
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     final GoogleSignInAuthentication? googleAuth =
         await googleUser?.authentication;
     final credential = GoogleAuthProvider.credential(

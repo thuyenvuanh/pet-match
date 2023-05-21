@@ -57,14 +57,9 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-  void onSignInGoogle() {
-    developer.log("Start login email");
-    _authBloc.add(GoogleSignInRequest());
-  }
+  void onSignInGoogle() => _authBloc.add(GoogleSignInRequest());
 
-  void privacyPolicyView() {
-    _authBloc.add(SignOutRequest());
-  }
+  void privacyPolicyView() {}
 
   void termAndConditionView() {}
 

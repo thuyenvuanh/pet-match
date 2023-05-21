@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pet_match/src/config/router/routes.dart';
 import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
+import 'package:pet_match/src/presentation/widgets/button.dart';
 import 'package:pet_match/src/presentation/widgets/loading_indicator.dart';
 import 'package:pet_match/src/presentation/widgets/otp_input_layout.dart';
 import 'package:pet_match/src/presentation/widgets/phone_input_layout.dart';
@@ -21,6 +24,8 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   final PageController _controller = PageController();
   late final AuthBloc _authBloc;
   late final StreamSubscription _authStream;
+
+  bool _hideBackButton = false;
   String _verificationId = "";
   bool isLoading = false;
 
@@ -60,12 +65,13 @@ class _PhoneVerificationState extends State<PhoneVerification> {
           Navigator.pop(context);
           return;
         case PhoneVerificationSuccess:
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.root.name,
-            (route) => false,
-          );
-          return;
+          Navigator.pushAndRemoveUntil(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => const SignUpSuccess(),
+              ),
+              (route) => false);
+          break;
       }
       setState(() {
         isLoading = false;
@@ -139,7 +145,71 @@ class _PhoneVerificationState extends State<PhoneVerification> {
             Positioned(
               left: 40,
               top: 44,
-              child: RoundedBackButton(onTap: isLoading ? null : clickBack),
+              child: Offstage(
+                offstage: _hideBackButton,
+                child: RoundedBackButton(onTap: isLoading ? null : clickBack),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SignUpSuccess extends StatelessWidget {
+  const SignUpSuccess({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Resource.lightBackground,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              top: 70,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/sign_up_success.png',
+                    height: 360,
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 50, bottom: 30),
+                    child: Text(
+                      "Chúc mừng!",
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Resource.primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    'Chúc mừng bạn đã đăng kí tài khoản thành công! Hãy tìm một em ghệ cho thú cưng của bạn ngay thôi nào!',
+                    style: TextStyle(
+                      color: Colors.black.withOpacity(0.7),
+                      height: 1.5,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 40,
+              child: Button(
+                label: "Bắt đầu khám phá",
+                onTap: () => Navigator.pushNamedAndRemoveUntil(
+                    context, AppRoutes.root.name, (route) => false),
+              ),
             ),
           ],
         ),

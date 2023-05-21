@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pet_match/src/data/datasources/remote/firebase_datasource.dart';
 import 'package:pet_match/src/domain/repositories/auth_repository.dart';
+import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pet_match/src/utils/error/failure.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -46,7 +47,8 @@ class AuthRepositoryImpl implements AuthRepository {
         code: e.code,
         message: e.message ?? "Message not provided",
       ));
-    } on Exception {
+    } on Exception catch (e) {
+      print(e);
       return Left(AuthFailure(
         code: "Unknown",
         message: "Unknown exception",
@@ -72,6 +74,21 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(await _firebaseDataSource.link(credential));
     } catch (e) {
       return Left(AuthFailure(code: "LINK_FAILED", message: "Link failed"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> getUserId() async {
+    var uid = _firebaseDataSource.userId;
+    if (uid != null) {
+      return Right(uid);
+    } else {
+      return Left(
+        AuthFailure(
+            code: "NO_USER_LOGGED_IN",
+            message:
+                'You\'re not logged. Logged in first to view created profiles'),
+      );
     }
   }
 }

@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pet_match/src/config/router/routes.dart';
+import 'package:pet_match/src/presentation/blocs/home_bloc/home_bloc.dart';
 import 'package:pet_match/src/presentation/views/matches_screen.dart';
 import 'package:pet_match/src/presentation/views/message_screen.dart';
 import 'package:pet_match/src/presentation/views/user_screen.dart';
@@ -21,9 +24,18 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late int _currentIndex;
 
+  late final StreamSubscription _blocListener;
+
   @override
   void initState() {
     super.initState();
+    _blocListener = BlocProvider.of<HomeBloc>(context).stream.listen((state) {
+      if (state is NoActiveProfile) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, AppRoutes.profiles.name, (route) => false);
+      }
+    });
+
     switch (widget.initialRoutes) {
       case AppRoutes.root:
         _currentIndex = 0;
@@ -35,6 +47,12 @@ class _HomeScreenState extends State<HomeScreen> {
         _currentIndex = 0;
         dev.log("Invalid route");
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _blocListener.cancel();
   }
 
   void selectTab(value) => setState(() {

@@ -8,7 +8,7 @@ class RoundedIconButton extends StatefulWidget {
     required this.onTap,
     this.color = Resource.primaryColor,
     this.style = const TextStyle(color: Colors.white),
-    this.borderRadius = BorderRadius.zero,
+    this.borderRadius,
     this.height = 64,
     this.width = 64,
     this.margin,
@@ -34,16 +34,19 @@ class _RoundedIconButtonState extends State<RoundedIconButton> {
       padding: widget.margin ?? const EdgeInsets.all(0),
       child: Material(
         elevation: 0,
-        borderRadius: widget.borderRadius,
+        borderRadius: widget.borderRadius ?? Resource.defaultBorderRadius,
         child: InkWell(
+          splashColor: Resource.primaryTintColor,
+          overlayColor: MaterialStateColor.resolveWith(
+              (states) => Resource.primaryTintColor),
           onTap: widget.onTap,
-          borderRadius: widget.borderRadius,
+          borderRadius: widget.borderRadius ?? Resource.defaultBorderRadius,
           child: Ink(
             height: widget.height,
             width: widget.width,
             decoration: BoxDecoration(
               color: Resource.lightBackground,
-              borderRadius: widget.borderRadius,
+              borderRadius: widget.borderRadius ?? Resource.defaultBorderRadius,
               border: Border.all(
                 color: const Color(0xFFE8E6EA),
                 style: BorderStyle.solid,

@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:pet_match/src/domain/models/breed_model.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
 import 'package:pet_match/src/domain/repositories/profile_repository.dart';
+import 'package:pet_match/src/domain/repositories/storage_repository.dart';
 
 part 'create_profile_event.dart';
 
@@ -12,13 +14,16 @@ part 'create_profile_state.dart';
 
 class CreateProfileBloc extends Bloc<CreateProfileEvent, CreateProfileState> {
   final ProfileRepository repository;
+  final StorageRepository storageRepository;
+  final FirebaseAuth auth = FirebaseAuth.instance;
   var breedRequired = "Required";
   var basicRequired = "Required";
+  File? avatarImage;
   Profile newProfile;
 
   Profile get profile => newProfile;
 
-  CreateProfileBloc(this.repository)
+  CreateProfileBloc(this.repository, this.storageRepository)
       : newProfile = Profile(),
         super(CreateProfileInitial()) {
     on<StartCreateProfile>((event, emit) {
@@ -43,11 +48,11 @@ class CreateProfileBloc extends Bloc<CreateProfileEvent, CreateProfileState> {
           event.gender == null) {
         emit(CreateProfileError(basicRequired));
       } else {
+        avatarImage = event.avatar;
         newProfile.name = event.name;
         newProfile.height = event.height;
         newProfile.weight = event.weight;
         newProfile.birthday = event.birthday;
-        newProfile.avatarFile = event.avatar;
         newProfile.gender = event.gender;
         emit(BasicInformationSaved(newProfile));
       }
@@ -58,14 +63,29 @@ class CreateProfileBloc extends Bloc<CreateProfileEvent, CreateProfileState> {
       add(SubmitProfile(profile));
     });
     on<SubmitProfile>((event, emit) async {
-      emit(CreateProfileLoading());
-      newProfile = event.profile;
-      var res = await repository.newProfile(newProfile);
-      res.fold((failure) {
-        emit(const CreateProfileError("Something went wrong"));
-      }, (profile) {
-        emit(CreateProfileSuccess(profile));
-      });
+      if (event.profile.avatar == null) {
+        emit(CreateProfileLoading());
+        newProfile = event.profile;
+        storageRepository.uploadImage(
+          avatarImage!,
+          auth.currentUser!.uid,
+          onSuccess: (url) {
+            newProfile.avatar = url;
+            add(SubmitProfile(newProfile));
+          },
+          onError: () {
+            emit(const CreateProfileError('Upload avatar failed'));
+          },
+        );
+      } else {
+        var res = await repository.newProfile(newProfile);
+        if (res.isRight()) {
+          var profile = res.getOrElse(() => throw UnimplementedError());
+          emit(CreateProfileSuccess(profile));
+        } else {
+          emit(const CreateProfileError("Something went wrong"));
+        }
+      }
     });
   }
 }

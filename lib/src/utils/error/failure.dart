@@ -18,7 +18,7 @@ class AuthFailure implements Failure {
 }
 
 class RequestFailure implements Failure {
-  final int code;
+  final String code;
   final String reason;
 
   const RequestFailure(this.code, this.reason);
@@ -43,6 +43,28 @@ class SharedPreferencesFailure implements Failure {
   SharedPreferencesFailure.notFound(Type type)
       : errorCode = "NOT_FOUND",
         message = '${type.toString()} Not Found';
+
+  @override
+  List<Object?> get props => [];
+
+  @override
+  bool? get stringify => false;
+}
+
+class ProfileFailure implements Failure {
+  final String message;
+  ProfileFailure(this.message);
+  @override
+  List<Object?> get props => [];
+
+  @override
+  bool? get stringify => false;
+}
+
+class NetworkFailure implements Failure {
+  final String message;
+
+  NetworkFailure(this.message);
 
   @override
   List<Object?> get props => [];

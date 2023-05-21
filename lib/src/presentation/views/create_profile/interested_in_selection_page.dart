@@ -4,6 +4,7 @@ import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pet_match/src/domain/models/breed_model.dart';
+import 'package:pet_match/src/domain/models/mock_data/breed.dart';
 import 'package:pet_match/src/presentation/blocs/create_profile_bloc/create_profile_bloc.dart';
 import 'package:pet_match/src/presentation/widgets/button.dart';
 import 'package:pet_match/src/utils/constant.dart';
@@ -45,14 +46,6 @@ class _InterestSelectionPageState extends State<InterestSelectionPage> {
       )
     ],
   );
-
-  final List<Breed> interestOptions = [
-    Breed(id: "1", name: "Husky"),
-    Breed(id: "2", name: "Corgi"),
-    Breed(id: "3", name: "Pitpull"),
-    Breed(id: "4", name: "Chihuahua"),
-    Breed(id: "5", name: "Shiba Inu"),
-  ];
 
   @override
   void initState() {
@@ -119,9 +112,9 @@ class _InterestSelectionPageState extends State<InterestSelectionPage> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 16,
                     children: List.generate(
-                      interestOptions.length,
+                      breeds.length,
                       (index) {
-                        var temp = interestOptions[index];
+                        var temp = breeds[index];
                         return InkWell(
                           borderRadius: Resource.defaultBorderRadius,
                           onTap: () {
@@ -182,9 +175,11 @@ class _InterestSelectionPageState extends State<InterestSelectionPage> {
           right: 0,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Button(label: "Tiep theo", onTap: () {
-              _bloc.add(SaveInterests(_selectedInterests));
-            }),
+            child: Button(
+                label: "Tiep theo",
+                onTap: () {
+                  _bloc.add(SaveInterests(_selectedInterests));
+                }),
           ),
         ),
       ],

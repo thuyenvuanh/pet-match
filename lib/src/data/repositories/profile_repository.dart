@@ -19,22 +19,41 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<Either<Failure, Profile>> getProfileById(String profileId) async {
-    return Left(SharedPreferencesFailure.empty());
+  Future<Either<Failure, Profile?>> getProfileById(String profileId) async {
+    var res = await remoteDataSource.getProfileById(profileId);
+    if (res.isRight()) {
+      var profile = res.getOrElse(() => null);
+      dev.log(profile == null
+          ? "No Profile found"
+          : 'Profile with id $profileId found');
+      return Right(profile);
+    } else {
+      return res;
+    }
   }
 
   @override
-  Future<Either<Failure, List<Profile>>> getProfiles(String userId) {
-    return remoteDataSource.getProfiles(userId);
+  Future<Either<Failure, List<Profile>>> getProfiles(String userId) async {
+    var res = await remoteDataSource.getProfiles(userId);
+    if (res.isRight()) {
+      var profiles = res.getOrElse(() => []);
+      dev.log('number of profiles found: ${profiles.length}');
+      return Right(profiles);
+    } else {
+      return res;
+    }
   }
 
   @override
   Future<Either<Failure, Profile>> newProfile(Profile profile) async {
-    dev.log("Mock return success");
-    if (localDatasource.getActiveProfile().isLeft()) {
+    var res = await remoteDataSource.createProfile(profile);
+    if (res.isRight()) {
+      var profile = res.getOrElse(() => throw UnimplementedError());
       localDatasource.cacheActiveProfile(profile);
+      return Right(profile);
+    } else {
+      return Left(ProfileFailure('Error while create profile'));
     }
-    return Right(profile);
   }
 
   @override
@@ -44,12 +63,18 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Either<Failure, bool> cacheCurrentActiveProfile(Profile profile) {
-    return localDatasource.cacheActiveProfile(profile);
+  Future<Either<Failure, bool>> cacheCurrentActiveProfile(
+      Profile profile) async {
+    return await localDatasource.cacheActiveProfile(profile);
   }
 
   @override
   Either<Failure, Profile> getCurrentActiveProfile() {
     return localDatasource.getActiveProfile();
+  }
+
+  @override
+  Future<Either<Failure, bool>> disableCurrentActiveProfile() async {
+    return await Right(await localDatasource.disableActiveProfile());
   }
 }

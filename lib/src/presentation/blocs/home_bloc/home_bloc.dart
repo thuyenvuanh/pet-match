@@ -9,7 +9,6 @@ part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-
   late Profile activeProfile;
   final ProfileRepository profileRepository;
 
@@ -30,14 +29,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       });
     });
     on<FetchNewData>((event, emit) async {
-      if(activeProfile.id == null) {
+      if (activeProfile.id == null) {
         emit(NoActiveProfile());
       } else {
         var res = await profileRepository.getProfileById(activeProfile.id!);
         res.fold((failure) {
           developer.log("Get profile data error");
         }, (profile) {
-          activeProfile = profile;
+          activeProfile = profile!;
           profileRepository.cacheCurrentActiveProfile(profile);
           emit(ActiveProfile(activeProfile));
         });

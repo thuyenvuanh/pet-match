@@ -19,5 +19,7 @@ abstract class AuthRepository {
 
   Future<Either<Failure, User>> signInWithFacebook();
 
+  Future<Either<Failure, String>> getUserId();
+
   Future<void> signOut();
 }

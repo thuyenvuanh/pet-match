@@ -83,8 +83,10 @@ class SwipeProvider extends ChangeNotifier {
       }
       _hapticTrack = true;
     } else {
-      _hapticTrack = false;
-      dev.log("haptic track cancelled");
+      if (_hapticTrack) {
+        _hapticTrack = false;
+        dev.log("haptic track cancelled");
+      }
     }
     notifyListeners();
   }

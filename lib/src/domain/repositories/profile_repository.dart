@@ -6,11 +6,13 @@ abstract class ProfileRepository {
 
   Either<Failure, Profile> getCurrentActiveProfile();
 
-  Either<Failure, bool> cacheCurrentActiveProfile(Profile profile);
+  Future<Either<Failure, bool>> cacheCurrentActiveProfile(Profile profile);
+
+  Future<Either<Failure, bool>> disableCurrentActiveProfile();
 
   Future<Either<Failure, List<Profile>>> getProfiles(String accountId);
 
-  Future<Either<Failure, Profile>> getProfileById(String profileId);
+  Future<Either<Failure, Profile?>> getProfileById(String profileId);
 
   Future<Either<Failure, Profile>> newProfile(Profile profile);
 
