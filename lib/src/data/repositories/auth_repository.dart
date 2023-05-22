@@ -1,8 +1,10 @@
+import 'dart:developer' as dev;
+
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pet_match/src/data/datasources/remote/firebase_datasource.dart';
 import 'package:pet_match/src/domain/repositories/auth_repository.dart';
-import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
+import 'package:pet_match/src/utils/error/exceptions.dart';
 import 'package:pet_match/src/utils/error/failure.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -19,52 +21,48 @@ class AuthRepositoryImpl implements AuthRepository {
     required Function(String) codeAutoRetrievalTimeout,
   }) async {
     try {
-      return Right(await _firebaseDataSource.sendOtp(
+      final res = await _firebaseDataSource.sendOtp(
         phoneNumber: phoneNumber,
         verificationCompleted: verificationCompleted,
         verificationFailed: verificationFailed,
         codeSent: codeSent,
         codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
-      ));
-    } on Exception catch (e) {
-      return Left(AuthFailure(code: e.toString(), message: e.toString()));
+      );
+      return Right(res);
+    } on AuthException catch (e) {
+      return Left(AuthFailure(message: e.message));
     }
   }
 
   @override
   Future<Either<Failure, User>> signInWithFacebook() async {
-    // TODO: implement signInWithFacebook
     throw UnimplementedError();
   }
 
   @override
   Future<Either<Failure, User>> signInWithGoogle() async {
     try {
-      var userCredential = await _firebaseDataSource.signInGoogle();
-      return Right(userCredential.user!);
+      var user = await _firebaseDataSource.signInGoogle();
+      if (user != null) {
+        return Right(user);
+      } else {
+        return const Left(AuthFailure(message: 'Login failed'));
+      }
     } on FirebaseAuthException catch (e) {
-      return Left(AuthFailure(
-        code: e.code,
-        message: e.message ?? "Message not provided",
-      ));
+      return Left(AuthFailure(message: e.message ?? "Message not provided"));
     } on Exception catch (e) {
-      print(e);
-      return Left(AuthFailure(
-        code: "Unknown",
-        message: "Unknown exception",
-      ));
+      dev.log(e.runtimeType.toString());
+      return const Left(AuthFailure(message: "Unknown exception"));
     }
   }
 
   @override
   Future<void> signOut() {
-    // TODO: implement signOut
     throw UnimplementedError();
   }
 
   @override
   Future<Either<Failure, User>> signUpWithGoogle() {
-    // TODO: implement signUpWithGoogle
     throw UnimplementedError();
   }
 
@@ -73,7 +71,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       return Right(await _firebaseDataSource.link(credential));
     } catch (e) {
-      return Left(AuthFailure(code: "LINK_FAILED", message: "Link failed"));
+      return const Left(AuthFailure(message: "Link failed"));
     }
   }
 
@@ -83,12 +81,9 @@ class AuthRepositoryImpl implements AuthRepository {
     if (uid != null) {
       return Right(uid);
     } else {
-      return Left(
-        AuthFailure(
-            code: "NO_USER_LOGGED_IN",
-            message:
-                'You\'re not logged. Logged in first to view created profiles'),
-      );
+      return const Left(AuthFailure(
+          message:
+              'You\'re not logged. Logged in first to view created profiles'));
     }
   }
 }

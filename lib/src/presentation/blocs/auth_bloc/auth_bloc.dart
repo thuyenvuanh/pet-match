@@ -10,9 +10,6 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  // final SignInGoogle _signInGoogle;
-  // final LinkPhone _linkPhone;
-
   final AuthRepository _authRepository;
 
   String? _phoneNumber;
@@ -25,19 +22,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<GoogleSignInRequest>((event, emit) async {
       emit(PhoneLinkLoading());
       var res = await _authRepository.signInWithGoogle();
-      res.fold((authFailure) {
-        authFailure as AuthFailure;
-        developer.log('Auth Failed with code: ${authFailure.code}');
-        emit(AuthError(authFailure.message));
-      }, (user) {
-        if (user.phoneNumber == null || user.phoneNumber!.isEmpty) {
-          developer.log("Phone number not found");
-          emit(PhoneNumberRequired(user));
-        } else {
-          developer.log("Authentication success");
-          emit(Authenticated());
-        }
-      });
+      res.fold(
+        (authFailure) {
+          authFailure as AuthFailure;
+          developer.log('Auth Failed with message: ${authFailure.message}');
+          emit(AuthError(authFailure.message));
+        },
+        (user) {
+          if (user.phoneNumber == null || user.phoneNumber!.isEmpty) {
+            developer.log("Phone number not found");
+            emit(PhoneNumberRequired(user));
+          } else {
+            developer.log("Authentication success");
+            emit(Authenticated());
+          }
+        },
+      );
     });
 
     on<SignOutRequest>((event, emit) async {

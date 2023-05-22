@@ -1,9 +1,8 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 
-import 'package:dartz/dartz.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
 import 'package:pet_match/src/utils/error/exceptions.dart';
-import 'package:pet_match/src/utils/error/failure.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileLocalDatasource {
@@ -12,33 +11,43 @@ class ProfileLocalDatasource {
 
   ProfileLocalDatasource(this.localStorage);
 
-  Future<Either<Failure, bool>> cacheActiveProfile(Profile profile) async {
+  Future<bool> cacheActiveProfile(Profile profile) async {
     try {
       profile.id = "0";
       var profileEncoded = json.encode(profile.toJson());
       await localStorage.setString(activeProfile, profileEncoded);
-      return const Right(true);
+      return true;
     } on Exception {
-      return Left(SharedPreferencesFailure.empty());
+      dev.log('Unknown exception when save data to local storage');
+      return false;
     }
   }
 
-  Either<Failure, Profile> getActiveProfile() {
+  Profile? getActiveProfile() {
     try {
       var profileEncoded = localStorage.getString(activeProfile);
       if (profileEncoded == null || profileEncoded == 'null') {
-        throw NotFoundException();
+        throw NotFoundException('activeProfile');
       }
       Profile profile = Profile.fromJson(json.decode(profileEncoded) ?? {});
-      return Right(profile);
+      return profile;
     } on NotFoundException {
-      return Left(SharedPreferencesFailure.notFound(Profile().runtimeType));
+      dev.log('Not found exception for key: $activeProfile');
+      return null;
     } on Exception {
-      return Left(SharedPreferencesFailure.empty());
+      dev.log('Unknown exception thrown');
+      return null;
     }
   }
 
   Future<bool> disableActiveProfile() async {
-    return await localStorage.remove(activeProfile);
+    dev.log('removing active Profile');
+    var res = await localStorage.remove(activeProfile);
+    if (res) {
+      dev.log("$activeProfile removed");
+    } else {
+      dev.log('$activeProfile not found');
+    }
+    return res;
   }
 }

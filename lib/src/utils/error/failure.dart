@@ -2,73 +2,62 @@ import 'package:equatable/equatable.dart';
 
 abstract class Failure extends Equatable {
   const Failure([List properties = const <dynamic>[]]) : super();
-}
-
-class AuthFailure implements Failure {
-  final String code;
-  final String message;
-
-  AuthFailure({required this.code, required this.message});
 
   @override
-  List<Object?> get props => [code, message];
+  List<Object?> get props => [];
 
   @override
   bool? get stringify => false;
 }
 
-class RequestFailure implements Failure {
+class AuthFailure extends Failure {
+  final String message;
+
+  const AuthFailure({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class RequestFailure extends Failure {
   final String code;
   final String reason;
 
-  const RequestFailure(this.code, this.reason);
+  const RequestFailure({required this.code, required this.reason});
 
   @override
   List<Object?> get props => [code, reason];
-
-  @override
-  bool? get stringify => false;
 }
 
-class SharedPreferencesFailure implements Failure {
+class SharedPreferencesFailure extends Failure {
   final String message;
   final String errorCode;
 
-  SharedPreferencesFailure.empty()
+  const SharedPreferencesFailure.empty()
       : message = "",
         errorCode = "";
 
-  SharedPreferencesFailure(this.errorCode, this.message);
+  const SharedPreferencesFailure(
+      {required this.errorCode, required this.message});
 
-  SharedPreferencesFailure.notFound(Type type)
+  SharedPreferencesFailure.notFound(Type? type)
       : errorCode = "NOT_FOUND",
-        message = '${type.toString()} Not Found';
-
-  @override
-  List<Object?> get props => [];
-
-  @override
-  bool? get stringify => false;
+        message = '${type?.toString()} Not Found';
 }
 
-class ProfileFailure implements Failure {
+class ProfileFailure extends Failure {
   final String message;
-  ProfileFailure(this.message);
-  @override
-  List<Object?> get props => [];
-
-  @override
-  bool? get stringify => false;
+  const ProfileFailure(this.message);
 }
 
-class NetworkFailure implements Failure {
+class NetworkFailure extends Failure {
   final String message;
 
-  NetworkFailure(this.message);
+  const NetworkFailure({required this.message});
+}
 
-  @override
-  List<Object?> get props => [];
-
-  @override
-  bool? get stringify => false;
+class NotFoundFailure extends Failure {
+  final String object;
+  final String value;
+  const NotFoundFailure({required this.object, required this.value});
 }

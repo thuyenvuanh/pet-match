@@ -14,7 +14,7 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
     try {
       return Right(localDatasource.disableOnboardingScreen());
     } on Exception {
-      return Left(SharedPreferencesFailure.empty());
+      return const Left(SharedPreferencesFailure.empty());
     }
   }
 
@@ -23,7 +23,7 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
     try {
       return Right(localDatasource.isOnboardingEnable);
     } on Exception {
-      return Left(SharedPreferencesFailure.empty());
+      return const Left(SharedPreferencesFailure.empty());
     }
   }
 

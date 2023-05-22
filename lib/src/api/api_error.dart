@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 class ApiError {
+  int? statusCode;
   String? httpStatus;
   DateTime? timestamp;
   String? message;
@@ -8,6 +9,7 @@ class ApiError {
   List<ApiErrorDetails>? details;
 
   ApiError({
+    this.statusCode,
     this.httpStatus,
     this.timestamp,
     this.message,
