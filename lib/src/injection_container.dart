@@ -46,12 +46,12 @@ Future<void> init() async {
       () => StorageRepositoryImpl(sl()));
 
   //! Data sources
-  sl.registerLazySingleton(() => FirebaseDataSource(sl()));
+  sl.registerLazySingleton(() => FirebaseDataSource(sl(), sl()));
   sl.registerLazySingleton(() => OnboardingLocalDatasource(sl()));
   sl.registerLazySingleton(() => ProfileLocalDatasource(sl()));
   sl.registerLazySingleton(() => ProfileRemoteDataSource(sl()));
   sl.registerLazySingleton(() => FirebaseStorageDataSource());
 
   //others
-  sl.registerLazySingleton(() => RestClient());
+  sl.registerLazySingleton(() => RestClient(sl()));
 }

@@ -32,7 +32,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       if (activeProfile.id == null) {
         emit(NoActiveProfile());
       } else {
-        var res = await profileRepository.getProfileById(activeProfile.id!);
+        var res = await profileRepository.getProfileById(activeProfile.id!, true);
         res.fold((failure) {
           developer.log("Get profile data error");
         }, (profile) {

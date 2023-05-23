@@ -51,7 +51,7 @@ class _UserScreenState extends State<UserScreen> {
                   height: 100,
                   child: CircleAvatar(
                     foregroundImage: NetworkImage(
-                        'https://firebasestorage.googleapis.com/v0/b/petmatch-6e802.appspot.com/o/profile%2Favatar%2F48TBAFDw4zW6jKs5OBKD0wV5g7J3.jpg?alt=media&token=148c0076-5926-47e1-a4bf-3bc1ca54e2fe'),
+                        'https://firebasestorage.googleapis.com/v0/b/petmatch-6e802.appspot.com/o/48TBAFDw4zW6jKs5OBKD0wV5g7J3%2Fprofiles%2FIMG_0955.jpg?alt=media&token=6e3b92d8-04cd-47f1-af46-43c452dad5fb'),
                     child: SizedBox.expand(),
                   ),
                 ),

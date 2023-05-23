@@ -4,28 +4,53 @@ import 'dart:developer' as dev;
 
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pet_match/src/api/api_error.dart';
 import 'package:pet_match/src/domain/models/token_model.dart';
 import 'package:pet_match/src/utils/error/exceptions.dart';
 import 'package:pet_match/src/utils/error/failure.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RestClient {
   static const _host = "10.0.2.2";
   static const _port = 8080;
   static const _scheme = "http";
 
-  static AuthorizationToken? _authentication;
-
-  static set authenticationHeader(AuthorizationToken authorizationToken) =>
-      _authentication = authorizationToken;
-
   static const Map<String, String> defaultHeaders = {
     'Content-Type': 'application/json; charset=utf-8',
     'Accept-Charset': "UTF-8"
   };
 
-  static Iterable<MapEntry<String, String>> _buildAuthorizationHeader() {
-    return {'Authorization': 'Bearer $_authentication'}.entries;
+  final SharedPreferences localStorage;
+
+  const RestClient(this.localStorage);
+
+  Future<AuthorizationToken?> _isTokenExpired(AuthorizationToken token) async {
+    final decodedToken = JwtDecoder.decode(token.accessToken!);
+    int exp = decodedToken['exp'];
+    if (DateTime.fromMillisecondsSinceEpoch(exp * 1000)
+        .isAfter(DateTime.now())) {
+      return null;
+    } else {
+      const path = '/pet-match/api/v1/auth/refresh-token';
+      final resBody = await post(path, authorization: false, headers: {
+        'Authorization': 'Bearer ${token.refreshToken!}',
+      });
+      return AuthorizationToken.fromJson(json.decode(resBody));
+    }
+  }
+
+  Future<Map<String, String>> _buildAuthorizationHeader() async {
+    var token = AuthorizationToken.fromJson(
+        json.decode(localStorage.getString('authToken')!));
+    var newToken = await _isTokenExpired(token);
+
+    if (newToken != null) {
+      dev.log("Token expired and received new token");
+      token = newToken;
+      localStorage.setString('authToken', json.encode(token.toJson()));
+    }
+    return {'Authorization': 'Bearer ${token.accessToken}'};
   }
 
   /// do a get request
@@ -43,6 +68,7 @@ class RestClient {
 
   Future<String> get(
     String path, {
+    bool authorization = true,
     Map<String, String>? headers,
     Map<String, dynamic>? queryParams,
   }) async {
@@ -55,8 +81,8 @@ class RestClient {
         scheme: _scheme,
       );
       headers = {...defaultHeaders, ...(headers ?? {})};
-      if (_authentication != null) {
-        headers.addEntries(_buildAuthorizationHeader());
+      if (authorization) {
+        headers.addAll(await _buildAuthorizationHeader());
       }
       var res = await http.get(uri, headers: headers);
       if (res.statusCode == 200) {
@@ -91,7 +117,8 @@ class RestClient {
 
   Future<String> post(
     String path, {
-    required Object? body,
+    Object? body,
+    bool authorization = true,
     Map<String, String>? headers,
   }) async {
     try {
@@ -102,8 +129,8 @@ class RestClient {
         scheme: _scheme,
       );
       headers = {...defaultHeaders, ...(headers ?? {})};
-      if (_authentication != null) {
-        headers.addEntries(_buildAuthorizationHeader());
+      if (authorization) {
+        headers.addAll(await _buildAuthorizationHeader());
       }
       var res = await http.post(uri, headers: headers, body: body);
       if (res.statusCode < 400 && res.statusCode >= 200) {

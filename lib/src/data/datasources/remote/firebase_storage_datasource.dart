@@ -8,14 +8,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 class FirebaseStorageDataSource {
   final fsi = FirebaseStorage.instance;
 
-  void uploadAvatar(
-    File file,
-    String fileName, {
+  void uploadFile(
+    File file, 
+    String refPath, {
     Function(String url)? onSuccess,
     Function()? onError,
   }) async {
     var fileName = path.basename(file.path);
-    final storageRef = fsi.ref().child('profile/avatar/$fileName');
+    final storageRef = fsi.ref().child('$refPath/$fileName');
     final uploadTask = storageRef.putFile(file);
     uploadTask.snapshotEvents.listen((task) async {
       switch (task.state) {

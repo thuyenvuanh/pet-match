@@ -13,7 +13,6 @@ class ProfileLocalDatasource {
 
   Future<bool> cacheActiveProfile(Profile profile) async {
     try {
-      profile.id = "0";
       var profileEncoded = json.encode(profile.toJson());
       await localStorage.setString(activeProfile, profileEncoded);
       return true;

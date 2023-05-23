@@ -11,13 +11,13 @@ class StorageRepositoryImpl implements StorageRepository {
   @override
   void uploadImage(
     File file,
-    String fileName, {
+    String refPath, {
     Function(String url)? onSuccess,
     Function()? onError,
   }) {
-    dataSource.uploadAvatar(
+    dataSource.uploadFile(
       file,
-      fileName,
+      refPath,
       onError: onError,
       onSuccess: onSuccess,
     );

@@ -8,6 +8,7 @@ import 'package:pet_match/src/utils/error/exceptions.dart';
 import 'package:pet_match/src/utils/error/failure.dart';
 import 'package:pet_match/src/utils/firebase_options.dart';
 import 'package:pet_match/src/utils/rest_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseDataSource {
   static const String firebaseAuthClientId =
@@ -16,11 +17,13 @@ class FirebaseDataSource {
 
   final fi = FirebaseAuth.instance;
   late final RestClient _restClient;
+  late final SharedPreferences _localStorage;
 
   String? get userId => fi.currentUser?.uid;
 
-  FirebaseDataSource(RestClient restClient) {
+  FirebaseDataSource(RestClient restClient, SharedPreferences localStorage) {
     _restClient = restClient;
+    _localStorage = localStorage;
   }
 
   Future<User?> signInGoogle() async {
@@ -41,11 +44,12 @@ class FirebaseDataSource {
       final idTokenString = (await fi.currentUser?.getIdTokenResult())?.token;
       var res = await _restClient.post(
         _authServer,
-        body: {'idTokenString': idTokenString},
+        authorization: false,
+        body: json.encode({'idTokenString': idTokenString}),
       );
       Map<String, dynamic> response = json.decode(res);
       final authToken = AuthorizationToken.fromJson(response);
-      RestClient.authenticationHeader = authToken;
+      _localStorage.setString('authToken', json.encode(authToken.toJson()));
       return fi.currentUser!;
     } catch (e) {
       fi.signOut();

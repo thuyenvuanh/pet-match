@@ -12,9 +12,9 @@ abstract class ProfileRepository {
 
   Future<Either<Failure, List<Profile>>> getProfiles(String accountId);
 
-  Future<Either<Failure, Profile?>> getProfileById(String profileId);
+  Future<Either<Failure, Profile?>> getProfileById(String profileId, [bool force = false]);
 
-  Future<Either<Failure, Profile>> newProfile(Profile profile);
+  Future<Either<Failure, Profile>> newProfile(Profile profile, String userId);
 
   Future<Either<Failure, Profile>> updateProfile(Profile profile);
 

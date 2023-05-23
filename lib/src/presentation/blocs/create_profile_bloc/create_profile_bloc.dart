@@ -68,7 +68,7 @@ class CreateProfileBloc extends Bloc<CreateProfileEvent, CreateProfileState> {
         newProfile = event.profile;
         storageRepository.uploadImage(
           avatarImage!,
-          auth.currentUser!.uid,
+          '${auth.currentUser!.uid}/profiles',
           onSuccess: (url) {
             newProfile.avatar = url;
             add(SubmitProfile(newProfile));
@@ -78,7 +78,8 @@ class CreateProfileBloc extends Bloc<CreateProfileEvent, CreateProfileState> {
           },
         );
       } else {
-        var res = await repository.newProfile(newProfile);
+        var res =
+            await repository.newProfile(newProfile, auth.currentUser!.uid);
         if (res.isRight()) {
           var profile = res.getOrElse(() => throw UnimplementedError());
           emit(CreateProfileSuccess(profile));

@@ -20,30 +20,39 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<Either<Failure, Profile?>> getProfileById(String profileId) async {
-    var profile = await remoteDataSource.getProfileById(profileId);
-    if (profile == null) {
-      dev.log('Profile not found with ID: $profileId');
-      return Left(NotFoundFailure(object: 'Profile', value: profileId));
+  Future<Either<Failure, Profile?>> getProfileById(
+    String profileId, [
+    bool force = false,
+  ]) async {
+    var localProfile = localDatasource.getActiveProfile();
+    if (localProfile == null || force) {
+      var profile = await remoteDataSource.getProfileById(profileId);
+      if (profile == null) {
+        dev.log('Profile not found with ID: $profileId');
+        return Left(NotFoundFailure(object: 'Profile', value: profileId));
+      } else {
+        dev.log("Profile found");
+        return Right(profile);
+      }
     } else {
-      dev.log("Profile found");
-      return Right(profile);
+      return Right(localProfile);
     }
   }
 
   @override
   Future<Either<Failure, List<Profile>>> getProfiles(String userId) async {
-    var profiles = await remoteDataSource.getProfiles(userId);
-    if (profiles.isEmpty) {
-      return const Left(NotFoundFailure(object: 'profiles', value: 'Empty'));
-    } else {
+    try {
+      var profiles = await remoteDataSource.getProfiles(userId);
       return Right(profiles);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
     }
   }
 
   @override
-  Future<Either<Failure, Profile>> newProfile(Profile profile) async {
-    var res = await remoteDataSource.createProfile(profile);
+  Future<Either<Failure, Profile>> newProfile(
+      Profile profile, String userId) async {
+    var res = await remoteDataSource.createProfile(profile, userId);
     if (res == null) {
       return const Left(ProfileFailure('Error while create profile'));
     } else {

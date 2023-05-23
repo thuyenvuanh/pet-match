@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
 import 'package:pet_match/src/domain/repositories/auth_repository.dart';
 import 'package:pet_match/src/domain/repositories/profile_repository.dart';
+import 'package:pet_match/src/utils/error/failure.dart';
 
 part 'profile_event.dart';
 part 'profile_state.dart';
@@ -23,24 +24,34 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       if (res.isRight()) {
         var uid = (res as Right).value;
         var either = await _profileRepository.getProfiles(uid);
-        if (either.isRight()) {
-          var profiles = List<Profile>.from((either as Right).value);
-          if (profiles.isEmpty) {
-            emit(NoProfileFetched());
-          } else {
-            emit(FetchedSuccess(profiles));
-          }
-        } else {
-          emit(const FetchedError(
-              'Failed to fetch profiles. Please try again later'));
-        }
+        either.fold(
+          (failure) {
+            emit(FetchedError(
+                'fetched error with type: ${failure.runtimeType}'));
+          },
+          (profiles) {
+            if (profiles.isEmpty) {
+              emit(NoProfileFetched());
+            } else {
+              emit(FetchedSuccess(profiles));
+            }
+          },
+        );
+        // if (either.isRight()) {
+        //   var profiles = List<Profile>.from((either as Right).value);
+        //   if (profiles.isEmpty) {
+        //     emit(NoProfileFetched());
+        //   } else {
+        //     emit(FetchedSuccess(profiles));
+        //   }
       } else {
         emit(const FetchedError('You\'re not logged in. Log in first.'));
       }
     });
     on<LoginToProfile>((event, emit) async {
       emit(LoggingIntoProfile(profile: event.profile));
-      var res = await _profileRepository.getProfileById(event.profile.id!);
+      var res =
+          await _profileRepository.getProfileById(event.profile.id!, true);
       var profile = res.getOrElse(() => null);
       if (profile != null) {
         _profileRepository.cacheCurrentActiveProfile(profile);

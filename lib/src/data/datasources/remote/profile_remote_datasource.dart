@@ -51,9 +51,9 @@ class ProfileRemoteDataSource {
     throw UnimplementedError();
   }
 
-  Future<Profile?> createProfile(Profile profile) async {
+  Future<Profile?> createProfile(Profile profile, String userId) async {
     try {
-      var jsonData = json.encode(profile.toJson());
+      var jsonData = json.encode(profile.toJson()..addAll({"user-id": userId}));
       final res = await restClient.post(_createProfile, body: jsonData);
       Profile body = Profile.fromJson(json.decode(res));
       return body;
