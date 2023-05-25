@@ -8,6 +8,7 @@ import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pet_match/src/presentation/widgets/button.dart';
 import 'package:pet_match/src/presentation/widgets/numpad.dart';
 import 'package:pet_match/src/utils/constant.dart';
+import 'package:pet_match/src/utils/extensions.dart';
 
 //style definitions
 final defaultBoxDecoration = BoxDecoration(
@@ -123,7 +124,7 @@ class _OtpInputLayoutState extends State<OtpInputLayout> {
         const SizedBox(height: 20),
         SizedBox(
           height: 51,
-          width: MediaQuery.of(context).size.width,
+          width: context.screenSize.width,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Row(

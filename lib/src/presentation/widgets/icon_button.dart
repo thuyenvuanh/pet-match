@@ -6,10 +6,11 @@ class RoundedIconButton extends StatefulWidget {
     super.key,
     required this.child,
     required this.onTap,
-    this.color = Resource.primaryColor,
+    this.color = Resource.lightBackground,
     this.style = const TextStyle(color: Colors.white),
     this.borderRadius,
     this.height = 64,
+    this.borderColor,
     this.width = 64,
     this.margin,
   });
@@ -20,6 +21,7 @@ class RoundedIconButton extends StatefulWidget {
   final BorderRadius? borderRadius;
   final VoidCallback? onTap;
   final double? height;
+  final Color? borderColor;
   final double? width;
   final EdgeInsetsGeometry? margin;
 
@@ -45,12 +47,13 @@ class _RoundedIconButtonState extends State<RoundedIconButton> {
             height: widget.height,
             width: widget.width,
             decoration: BoxDecoration(
-              color: Resource.lightBackground,
+              color: widget.color ?? Resource.lightBackground,
               borderRadius: widget.borderRadius ?? Resource.defaultBorderRadius,
-              border: Border.all(
-                color: const Color(0xFFE8E6EA),
-                style: BorderStyle.solid,
-              ),
+              border: 
+                  Border.all(
+                    color: widget.borderColor ?? const Color(0xFFE8E6EA),
+                    style: BorderStyle.solid,
+                  ),
             ),
             child: Center(child: widget.child),
           ),

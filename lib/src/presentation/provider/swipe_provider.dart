@@ -13,23 +13,14 @@ class SwipeProvider extends ChangeNotifier {
   final double range = 100;
 
   SwipeProvider(this.bloc) {
-    _profiles = [
-      "https://demostore.properlife.vn/wp-content/uploads/2023/02/dog.jpg",
-      "https://www.cdc.gov/healthypets/images/pets/cute-dog-headshot.jpg?_=42445"
-    ];
+    _profiles = [];
     notifyListeners();
     bloc.stream.listen((state) {
       switch (state.runtimeType) {
         case FetchNewProfilesOk:
           dev.log("Fetch OK from provider");
-          var newProfiles = [
-            "https://www.cdc.gov/healthypets/images/pets/cute-dog-headshot.jpg?_=42445",
-            "https://demostore.properlife.vn/wp-content/uploads/2023/02/dog.jpg",
-            "https://www.cdc.gov/healthypets/images/pets/cute-dog-headshot.jpg?_=42445",
-            "https://demostore.properlife.vn/wp-content/uploads/2023/02/dog.jpg",
-            "https://www.cdc.gov/healthypets/images/pets/cute-dog-headshot.jpg?_=42445",
-            "https://demostore.properlife.vn/wp-content/uploads/2023/02/dog.jpg",
-          ].reversed.toList();
+          var newProfiles =
+              (state as FetchNewProfilesOk).profiles.reversed.toList();
           _profiles = [...newProfiles, ...profiles];
           _isFetching = false;
           _resetDrag();
@@ -48,7 +39,7 @@ class SwipeProvider extends ChangeNotifier {
   bool _isDragging = false;
   double _angle = 0;
   Size _screenSize = Size.zero;
-  List<String> _profiles = [];
+  List<Profile> _profiles = [];
   bool _isFetching = false;
   bool _isButtonsDisabled = false;
   bool _hapticTrack = false;
@@ -57,7 +48,7 @@ class SwipeProvider extends ChangeNotifier {
   bool get isDragging => _isDragging;
   double get angle => _angle;
   Size get screenSize => _screenSize;
-  List<String> get profiles => _profiles;
+  List<Profile> get profiles => _profiles;
   double get stampOpacity => min(_position.dx.abs() / range, 1);
   bool get isAnimating => _isButtonsDisabled;
 
@@ -121,9 +112,9 @@ class SwipeProvider extends ChangeNotifier {
     }
   }
 
-  like() {
+  like([String? comment]) {
     _isButtonsDisabled = true;
-    bloc.add(SwipeLike(Profile()));
+    bloc.add(SwipeLike(Profile(), comment));
     _angle = 20;
     _position += Offset(_screenSize.width * 1.5, 0);
     _nextCard();

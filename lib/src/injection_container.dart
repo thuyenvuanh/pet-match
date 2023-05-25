@@ -29,7 +29,7 @@ Future<void> init() async {
       () => SharedPreferences.getInstance());
   await sl.isReady<SharedPreferences>();
   //! blocs
-  sl.registerFactory(() => AuthBloc(sl()));
+  sl.registerFactory(() => AuthBloc(sl(), sl()));
   sl.registerFactory(() => OnboardingBloc(sl())..add(ReadOnboardingStatus()));
   sl.registerFactory(() => CreateProfileBloc(sl(), sl()));
   sl.registerFactory(() => HomeBloc(sl()));

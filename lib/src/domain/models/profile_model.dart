@@ -18,18 +18,20 @@ class Profile {
   List<Breed>? interests;
   List<String>? gallery;
 
-  Profile(
-      {this.id,
-      this.breed,
-      this.name,
-      this.gender,
-      this.height,
-      this.weight,
-      this.birthday,
-      this.location,
-      this.description,
-      this.interests,
-      this.gallery});
+  Profile({
+    this.id,
+    this.breed,
+    this.name,
+    this.gender,
+    this.height,
+    this.weight,
+    this.birthday,
+    this.location,
+    this.description,
+    this.interests,
+    this.gallery,
+    this.avatar,
+  });
 
   Profile.fromJson(Map<String, dynamic> json) {
     id = json['id'];

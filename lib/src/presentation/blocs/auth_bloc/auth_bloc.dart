@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:pet_match/src/domain/repositories/auth_repository.dart';
+import 'package:pet_match/src/domain/repositories/profile_repository.dart';
 import 'package:pet_match/src/utils/error/failure.dart';
 
 part 'auth_event.dart';
@@ -11,13 +12,14 @@ part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
-
+  final ProfileRepository _profileRepository;
   String? _phoneNumber;
 
   String? get phoneNumber => _phoneNumber;
 
-  AuthBloc(AuthRepository authRepository)
+  AuthBloc(AuthRepository authRepository, ProfileRepository profileRepository)
       : _authRepository = authRepository,
+        _profileRepository = profileRepository,
         super(Unauthenticated()) {
     on<GoogleSignInRequest>((event, emit) async {
       emit(PhoneLinkLoading());
@@ -41,6 +43,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<SignOutRequest>((event, emit) async {
+      await _profileRepository.disableCurrentActiveProfile();
       await FirebaseAuth.instance.signOut();
       developer.log('signed out');
       emit(Unauthenticated());

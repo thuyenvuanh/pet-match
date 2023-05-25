@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_match/src/utils/constant.dart';
+import 'package:pet_match/src/utils/extensions.dart';
 
 enum ButtonVariant { primary, text }
 
@@ -48,7 +49,7 @@ class _ButtonState extends State<Button> {
           borderRadius: widget.borderRadius ?? Resource.defaultBorderRadius,
           child: Ink(
             height: widget.height,
-            width: widget.width ?? MediaQuery.of(context).size.width,
+            width: widget.width ?? context.screenSize.width,
             decoration: BoxDecoration(
               color: widget.variant == ButtonVariant.primary
                   ? Resource.primaryColor

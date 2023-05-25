@@ -1,10 +1,11 @@
+import 'dart:developer' as dev;
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
 import 'package:pet_match/src/domain/repositories/auth_repository.dart';
 import 'package:pet_match/src/domain/repositories/profile_repository.dart';
-import 'package:pet_match/src/utils/error/failure.dart';
 
 part 'profile_event.dart';
 part 'profile_state.dart';
@@ -12,6 +13,7 @@ part 'profile_state.dart';
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final ProfileRepository _profileRepository;
   final AuthRepository _authRepository;
+  late Profile profile;
 
   ProfileBloc(
       ProfileRepository profileRepository, AuthRepository authRepository)
@@ -59,6 +61,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       } else {
         emit(LoginError());
       }
+    });
+
+    on<GetCurrentProfile>((event, emit) {
+      var res = _profileRepository.getCurrentActiveProfile();
+      res.fold((failure) {
+        dev.log('error while get current profile');
+      }, (profile) {
+        emit(CurrentProfileState(profile));
+      });
     });
     on<LogoutOfProfile>((event, emit) async {
       emit(ProfilesLoading());

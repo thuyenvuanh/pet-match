@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_match/src/config/router/routes.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
@@ -10,6 +11,7 @@ import 'package:pet_match/src/presentation/blocs/profile_bloc/profile_bloc.dart'
 import 'package:pet_match/src/presentation/widgets/icon_button.dart';
 import 'package:pet_match/src/presentation/widgets/loading_indicator.dart';
 import 'package:pet_match/src/utils/constant.dart';
+import 'package:pet_match/src/utils/extensions.dart';
 
 class ProfileSelectScreen extends StatefulWidget {
   const ProfileSelectScreen({Key? key}) : super(key: key);
@@ -93,7 +95,7 @@ class _ProfileSelectScreenState extends State<ProfileSelectScreen> {
             const Padding(
               padding: EdgeInsets.only(top: 70),
               child: Text(
-                "Profiles",
+                "Chọn hồ sơ",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -132,8 +134,8 @@ class _ProfileSelectScreenState extends State<ProfileSelectScreen> {
       child: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
         child: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
+          width: context.screenSize.width,
+          height: context.screenSize.height,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: const [
@@ -207,10 +209,26 @@ class _ProfilePreviewState extends State<ProfilePreview> {
         fit: StackFit.expand,
         children: [
           Positioned.fill(
-            child: Image.network(
-              widget.profile.avatar!,
+            child: CachedNetworkImage(
+              imageUrl: widget.profile.avatar!,
               fit: BoxFit.cover,
+              placeholder: (context, url) {
+                return const LoadingIndicator();
+              },
             ),
+            //   child: Image.network(
+            //     widget.profile.avatar!,
+            //     fit: BoxFit.cover,
+            //     loadingBuilder: (context, child, loadingProgress) {
+            //       if (loadingProgress?.cumulativeBytesLoaded
+            //               .compareTo(loadingProgress.cumulativeBytesLoaded) ==
+            //           -1) {
+            //         return const LoadingIndicator();
+            //       } else {
+            //         return child;
+            //       }
+            //     },
+            //   ),
           ),
           Positioned(
             bottom: 0,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pet_match/src/presentation/widgets/button.dart';
 import 'package:pet_match/src/utils/constant.dart';
+import 'package:pet_match/src/utils/extensions.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class DateTimePicker extends StatefulWidget {
@@ -47,7 +48,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
             onTap: pickDate,
             child: Ink(
               height: 59,
-              width: MediaQuery.of(context).size.width,
+              width: context.screenSize.width,
               decoration: BoxDecoration(
                 borderRadius: Resource.defaultBorderRadius,
                 color: Resource.primaryTintColor,
@@ -169,7 +170,7 @@ class _CalendarPickerState extends State<CalendarPicker> {
             topLeft: Radius.circular(44), topRight: Radius.circular(44)),
       ),
       padding: const EdgeInsets.all(40),
-      height: MediaQuery.of(context).size.height * 0.75,
+      height: context.screenSize.height * 0.75,
       child: Stack(
         children: [
           Positioned.fill(
@@ -248,7 +249,7 @@ class _CalendarPickerState extends State<CalendarPicker> {
             child: Button(
               borderRadius: Resource.defaultBorderRadius,
               height: 59,
-              width: MediaQuery.of(context).size.width - 80,
+              width: context.screenSize.width - 80,
               label: 'Lưu',
               onTap: () => Navigator.pop(context, [_selected]),
             ),

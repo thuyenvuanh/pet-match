@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pet_match/src/config/router/routes.dart';
+import 'package:pet_match/src/domain/models/profile_model.dart';
+import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/home_bloc/home_bloc.dart';
 import 'package:pet_match/src/presentation/views/matches_screen.dart';
 import 'package:pet_match/src/presentation/views/message_screen.dart';
@@ -24,18 +26,26 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late int _currentIndex;
 
-  late final StreamSubscription _blocListener;
-
+  late final StreamSubscription _homeListener, _authListener;
+  Profile? _profile;
   @override
   void initState() {
     super.initState();
-    _blocListener = BlocProvider.of<HomeBloc>(context).stream.listen((state) {
+    _homeListener = BlocProvider.of<HomeBloc>(context).stream.listen((state) {
       if (state is NoActiveProfile) {
         Navigator.pushNamedAndRemoveUntil(
             context, AppRoutes.profiles.name, (route) => false);
       }
+      if (state is ActiveProfile) {
+        _profile = state.activeProfile;
+      }
     });
-
+    _authListener = BlocProvider.of<AuthBloc>(context).stream.listen((state) {
+      if (state is Unauthenticated) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, AppRoutes.signIn.name, (route) => false);
+      }
+    });
     switch (widget.initialRoutes) {
       case AppRoutes.root:
         _currentIndex = 0;
@@ -52,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     super.dispose();
-    _blocListener.cancel();
+    _homeListener.cancel();
   }
 
   void selectTab(value) => setState(() {
@@ -64,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Resource.lightBackground,
+      resizeToAvoidBottomInset: false,
       body: _buildBody(),
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
@@ -126,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Positioned.fill(
           child: Offstage(
             offstage: _currentIndex != 3,
-            child: const UserScreen(),
+            child: _profile == null ? const SizedBox() : const UserScreen(),
           ),
         ),
       ],

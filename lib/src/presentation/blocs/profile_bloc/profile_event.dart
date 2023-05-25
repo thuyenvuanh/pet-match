@@ -7,6 +7,8 @@ abstract class ProfileEvent extends Equatable {
 
 class FetchAvailableProfiles extends ProfileEvent {}
 
+class GetCurrentProfile extends ProfileEvent {}
+
 class LoginToProfile extends ProfileEvent {
   final Profile profile;
 

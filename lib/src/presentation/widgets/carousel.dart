@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
-import 'package:pet_match/src/presentation/widgets/indicator.dart';
+import 'package:pet_match/src/presentation/widgets/index_indicator.dart';
 import 'package:pet_match/src/utils/constant.dart';
+import 'package:pet_match/src/utils/extensions.dart';
 
 class Carousel extends StatefulWidget {
   const Carousel({super.key});
@@ -29,7 +30,7 @@ class _CarouselState extends State<Carousel> {
       children: [
         SizedBox(
             height: _carouselHeight,
-            width: MediaQuery.of(context).size.width,
+            width: context.screenSize.width,
             child: FlutterCarousel(
               options: CarouselOptions(
                 controller: controller,

@@ -26,6 +26,11 @@ class FetchedError extends ProfileState {
 
 class ProfileLoggedIn extends ProfileState {}
 
+class CurrentProfileState extends ProfileState {
+  final Profile profile;
+  const CurrentProfileState(this.profile);
+}
+
 class ProfileLoggedOut extends ProfileState {}
 
 class LoggingIntoProfile extends ProfileState {

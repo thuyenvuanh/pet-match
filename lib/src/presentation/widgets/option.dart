@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_match/src/utils/constant.dart';
+import 'package:pet_match/src/utils/extensions.dart';
 
 class Option extends StatelessWidget {
   Option({
@@ -41,7 +42,7 @@ class Option extends StatelessWidget {
           onTap: () => onTap(label),
           borderRadius: Resource.defaultBorderRadius,
           child: Ink(
-            width: MediaQuery.of(context).size.width,
+            width: context.screenSize.width,
             height: 58,
             decoration: isSelected ? selectedBoxDecoration : defaultBoxDecoration,
             padding: const EdgeInsets.symmetric(horizontal: 20),

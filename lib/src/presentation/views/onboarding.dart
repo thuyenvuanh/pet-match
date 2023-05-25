@@ -7,6 +7,7 @@ import 'package:pet_match/src/presentation/blocs/onboarding_bloc/onboarding_bloc
 import 'package:pet_match/src/presentation/widgets/button.dart';
 import 'package:pet_match/src/presentation/widgets/carousel.dart';
 import 'package:pet_match/src/utils/constant.dart';
+import 'package:pet_match/src/utils/extensions.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -51,7 +52,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(height: MediaQuery.of(context).size.height * 0.08),
+            SizedBox(height: context.screenSize.height * 0.08),
             const Carousel(),
             Button(
               label: "Tạo tài khoản",

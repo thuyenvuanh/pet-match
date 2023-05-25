@@ -10,8 +10,9 @@ class FetchNewProfiles extends SwipeEvent {
 
 class SwipeLike extends SwipeEvent {
   final Profile profile;
+  final String? comment;
 
-  SwipeLike(this.profile);
+  SwipeLike(this.profile, this.comment);
 
   @override
   List<Object?> get props => [profile.id];
@@ -24,4 +25,12 @@ class SwipePass extends SwipeEvent {
 
   @override
   List<Object?> get props => [profile.id];
+}
+
+class FetchComments extends SwipeEvent {
+  final Profile profile;
+  FetchComments(this.profile);
+
+  @override
+  List<Object?> get props => [];
 }

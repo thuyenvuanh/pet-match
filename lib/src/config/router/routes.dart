@@ -12,6 +12,7 @@ import 'package:pet_match/src/presentation/blocs/create_profile_bloc/create_prof
 import 'package:pet_match/src/presentation/blocs/home_bloc/home_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/onboarding_bloc/onboarding_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/profile_bloc/profile_bloc.dart';
+import 'package:pet_match/src/presentation/blocs/swipe_bloc/swipe_bloc.dart';
 import 'package:pet_match/src/presentation/views/create_profile/create_profile_screen.dart';
 import 'package:pet_match/src/presentation/views/navigation.dart';
 import 'package:pet_match/src/presentation/views/onboarding.dart';
@@ -33,9 +34,9 @@ class RouteGenerator {
           providers: [
             BlocProvider(
                 create: (context) => sl<HomeBloc>()..add(GetInitialData())),
-            BlocProvider(
-              create: (context) => sl<ProfileBloc>(),
-            ),
+            BlocProvider(create: (context) => sl<ProfileBloc>()),
+            BlocProvider(create: (context) => sl<SwipeBloc>()),
+            BlocProvider(create: (context) => sl<AuthBloc>()),
           ],
           child: const HomeScreen(),
         ),
@@ -48,7 +49,7 @@ class RouteGenerator {
         ),
       );
 
-  static selectProfileRoute() => CupertinoModalPopupRoute(
+  static selectProfileRoute() => CupertinoPageRoute(
         builder: (context) => BlocProvider(
           create: (context) => sl<ProfileBloc>(),
           child: const ProfileSelectScreen(),

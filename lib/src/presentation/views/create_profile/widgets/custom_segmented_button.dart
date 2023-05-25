@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_match/src/utils/constant.dart';
+import 'package:pet_match/src/utils/extensions.dart';
 
 class CustomSegmentedButton extends StatefulWidget {
   const CustomSegmentedButton({
@@ -20,7 +21,7 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
   Widget build(BuildContext context) {
     return Container(
       height: 59,
-      width: MediaQuery.of(context).size.width,
+      width: context.screenSize.width,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         borderRadius: Resource.defaultBorderRadius,
