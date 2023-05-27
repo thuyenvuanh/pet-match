@@ -27,9 +27,8 @@ class SwipePass extends SwipeEvent {
   List<Object?> get props => [profile.id];
 }
 
-class FetchComments extends SwipeEvent {
-  final Profile profile;
-  FetchComments(this.profile);
+class FetchLikedProfiles extends SwipeEvent {
+  FetchLikedProfiles();
 
   @override
   List<Object?> get props => [];

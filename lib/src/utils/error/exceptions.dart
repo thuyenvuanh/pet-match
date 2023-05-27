@@ -23,3 +23,5 @@ class NetworkException implements Exception {
 
   const NetworkException(this.message);
 }
+
+class RefreshTokenInvalidException implements Exception {}

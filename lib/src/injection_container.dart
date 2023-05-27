@@ -1,17 +1,22 @@
 import 'package:get_it/get_it.dart';
+import 'package:pet_match/src/data/datasources/local/auth_local_datasource.dart';
 import 'package:pet_match/src/data/datasources/local/onboarding_local_datasource.dart';
 import 'package:pet_match/src/data/datasources/local/profile_local_datasource.dart';
+import 'package:pet_match/src/data/datasources/local/swipe_local_datasource.dart';
 import 'package:pet_match/src/data/datasources/remote/firebase_datasource.dart';
 import 'package:pet_match/src/data/datasources/remote/firebase_storage_datasource.dart';
 import 'package:pet_match/src/data/datasources/remote/profile_remote_datasource.dart';
+import 'package:pet_match/src/data/datasources/remote/swipe_remote_datasource.dart';
 import 'package:pet_match/src/data/repositories/auth_repository.dart';
 import 'package:pet_match/src/data/repositories/onboarding_repository.dart';
 import 'package:pet_match/src/data/repositories/profile_repository.dart';
 import 'package:pet_match/src/data/repositories/storage_repository.dart';
+import 'package:pet_match/src/data/repositories/swipe_repository.dart';
 import 'package:pet_match/src/domain/repositories/auth_repository.dart';
 import 'package:pet_match/src/domain/repositories/onboarding_repository.dart';
 import 'package:pet_match/src/domain/repositories/profile_repository.dart';
 import 'package:pet_match/src/domain/repositories/storage_repository.dart';
+import 'package:pet_match/src/domain/repositories/swipe_repository.dart';
 import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/create_profile_bloc/create_profile_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/home_bloc/home_bloc.dart';
@@ -33,25 +38,30 @@ Future<void> init() async {
   sl.registerFactory(() => OnboardingBloc(sl())..add(ReadOnboardingStatus()));
   sl.registerFactory(() => CreateProfileBloc(sl(), sl()));
   sl.registerFactory(() => HomeBloc(sl()));
-  sl.registerFactory(() => SwipeBloc());
+  sl.registerFactory(() => SwipeBloc(sl()));
   sl.registerFactory(() => ProfileBloc(sl(), sl()));
 
   //! repositories
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
+  sl.registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<OnboardingRepository>(
       () => OnboardingRepositoryImpl(sl()));
   sl.registerLazySingleton<ProfileRepository>(
       () => ProfileRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<StorageRepository>(
       () => StorageRepositoryImpl(sl()));
+  sl.registerLazySingleton<SwipeRepository>(
+      () => SwipeRepositoryImpl(sl(), sl()));
 
   //! Data sources
-  sl.registerLazySingleton(() => FirebaseDataSource(sl(), sl()));
+  sl.registerLazySingleton(() => AuthRemoteDataSource(sl(), sl()));
+  sl.registerLazySingleton(() => AuthLocalDataSource(sl()));
   sl.registerLazySingleton(() => OnboardingLocalDatasource(sl()));
   sl.registerLazySingleton(() => ProfileLocalDatasource(sl()));
   sl.registerLazySingleton(() => ProfileRemoteDataSource(sl()));
   sl.registerLazySingleton(() => FirebaseStorageDataSource());
-
+  sl.registerLazySingleton(() => SwipeLocalDataSource(sl()));
+  sl.registerLazySingleton(() => SwipeRemoteDataSource());
   //others
   sl.registerLazySingleton(() => RestClient(sl()));
 }

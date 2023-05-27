@@ -216,19 +216,6 @@ class _ProfilePreviewState extends State<ProfilePreview> {
                 return const LoadingIndicator();
               },
             ),
-            //   child: Image.network(
-            //     widget.profile.avatar!,
-            //     fit: BoxFit.cover,
-            //     loadingBuilder: (context, child, loadingProgress) {
-            //       if (loadingProgress?.cumulativeBytesLoaded
-            //               .compareTo(loadingProgress.cumulativeBytesLoaded) ==
-            //           -1) {
-            //         return const LoadingIndicator();
-            //       } else {
-            //         return child;
-            //       }
-            //     },
-            //   ),
           ),
           Positioned(
             bottom: 0,

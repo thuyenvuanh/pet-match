@@ -2,17 +2,16 @@ import 'package:intl/intl.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
 import 'package:pet_match/src/utils/extensions.dart';
 
-class Comment {
+class Like {
   String? id;
   String? comment;
   Profile? profile;
   DateTime? createdTS;
   DateTime? updatedTS;
 
-  Comment(
-      {this.id, this.comment, this.createdTS, this.updatedTS, this.profile});
+  Like({this.id, this.comment, this.createdTS, this.updatedTS, this.profile});
 
-  Comment.fromJson(Map<String, dynamic> json) {
+  Like.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     comment = json['comment'];
     createdTS = DateFormat().parsePetMatch(json['created-date']);
@@ -29,5 +28,6 @@ class Comment {
     if (profile != null) {
       data['profile'] = profile!.toJson();
     }
+    return data;
   }
 }

@@ -4,10 +4,11 @@ import 'package:faker/faker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:pet_match/src/domain/models/comment_model.dart';
+import 'package:pet_match/src/domain/models/like.dart';
 import 'package:pet_match/src/domain/models/gender_model.dart';
 import 'package:pet_match/src/domain/models/mock_data/breed.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
+import 'package:pet_match/src/domain/repositories/swipe_repository.dart';
 import 'package:random_name_generator/random_name_generator.dart';
 import 'package:random_string/random_string.dart';
 
@@ -15,18 +16,23 @@ part 'swipe_event.dart';
 part 'swipe_state.dart';
 
 class SwipeBloc extends Bloc<SwipeEvent, SwipeState> {
+  final SwipeRepository _swipeRepository;
+
   //! TEST VARIABLE - REMOVE
   final RandomNames _randomNames;
   final List<String> images = [
     "https://demostore.properlife.vn/wp-content/uploads/2023/02/dog.jpg",
     "https://www.cdc.gov/healthypets/images/pets/cute-dog-headshot.jpg?_=42445",
     "https://millenroadanimalhospital.com/wp-content/uploads/2019/03/Dogs.jpg",
-    "https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_640.jpg",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Cat_November_2010-1a.jpg/1200px-Cat_November_2010-1a.jpg"
+    // "https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_640.jpg",
+    // "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Cat_November_2010-1a.jpg/1200px-Cat_November_2010-1a.jpg",
+    "https://cdn.tgdd.vn/Files/2021/04/12/1342796/15-giong-cho-canh-dep-de-cham-soc-pho-bien-tai-viet-nam-202104121501444654.jpg",
   ];
 
-  SwipeBloc()
-      : _randomNames = RandomNames(Zone.us),
+  SwipeBloc(
+    SwipeRepository swipeRepository,
+  )   : _swipeRepository = swipeRepository,
+        _randomNames = RandomNames(Zone.us),
         super(SwipeInitial()) {
     on<FetchNewProfiles>((event, emit) async {
       dev.log('fetching new profiles');
@@ -55,28 +61,34 @@ class SwipeBloc extends Bloc<SwipeEvent, SwipeState> {
           .then((value) => emit(FetchNewProfilesOk(profiles)));
       dev.log('new profile sent');
     });
-    on<SwipeLike>((event, emit) {
+    on<SwipeLike>((event, emit) async {
       dev.log('SwipeLike');
-      dev.log('mesage: ${event.comment}');
+      var res =
+          await _swipeRepository.likeProfile(event.profile, event.comment);
+      res.fold((l) {
+        dev.log('Something went wrong. The liked profile will not be saved');
+      }, (r) {
+        dev.log('Profile and comment saved successfully');
+      });
       emit(SwipeDone(Profile()));
+      add(FetchLikedProfiles());
     });
     on<SwipePass>((event, emit) {
       dev.log('SwipePass');
       emit(SwipeDone(Profile()));
     });
-    on<FetchComments>((event, emit) {
-      //! MOCK DATA REPLACE WITH THE REAL ONE
-      final mockComments = List.generate(
-        0,
-        (index) => Comment(
-          id: index.toString(),
-          comment: randomString(50),
-          profile: Profile(name: randomString(10)),
-          createdTS: DateTime.now(),
-        ),
-      );
-      dev.log('fetching comments');
-      emit(FetchCommentsOK(mockComments));
+    on<FetchLikedProfiles>((event, emit) async {
+      dev.log('fetching likedProfiles');
+      List<Like> likedProfiles = [];
+      final res = await _swipeRepository.getLikedProfile();
+      res.fold((l) {
+        dev.log('fetch liked profiles error');
+        emit(FetchLikedProfilesError(l.runtimeType.toString()));
+      }, (likes) {
+        dev.log('liked profiles founds with ${likes.length} entities');
+        likedProfiles.addAll(likes);
+      });
+      emit(FetchLikedProfilesOK(likedProfiles));
     });
   }
 }

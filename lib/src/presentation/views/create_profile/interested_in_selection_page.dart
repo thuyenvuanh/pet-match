@@ -138,8 +138,8 @@ class _InterestSelectionPageState extends State<InterestSelectionPage> {
                                 Padding(
                                   padding:
                                       const EdgeInsets.only(left: 14, right: 8),
-                                  child: Icon(
-                                    Icons.image_rounded,
+                                  child: Image.asset(
+                                    'assets/images/animal.png',
                                     color: _selectedInterests!.contains(temp)
                                         ? Colors.white
                                         : Colors.black,
@@ -176,7 +176,7 @@ class _InterestSelectionPageState extends State<InterestSelectionPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Button(
-                label: "Tiep theo",
+                label: "Tiếp theo",
                 onTap: () {
                   _bloc.add(SaveInterests(_selectedInterests));
                 }),

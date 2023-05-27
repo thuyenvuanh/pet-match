@@ -4,16 +4,12 @@ import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pet_match/src/domain/models/gender_model.dart';
-import 'package:pet_match/src/domain/models/location_model.dart';
-import 'package:pet_match/src/domain/models/mock_data/breed.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
 import 'package:pet_match/src/presentation/provider/swipe_provider.dart';
 import 'package:pet_match/src/presentation/widgets/loading_indicator.dart';
 import 'package:pet_match/src/utils/constant.dart';
 import 'package:pet_match/src/utils/extensions.dart';
 import 'package:provider/provider.dart';
-import 'package:random_string/random_string.dart';
 
 class SwipeCard extends StatefulWidget {
   const SwipeCard({

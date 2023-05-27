@@ -5,12 +5,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pet_match/src/domain/models/token_model.dart';
 import 'package:pet_match/src/utils/error/exceptions.dart';
-import 'package:pet_match/src/utils/error/failure.dart';
 import 'package:pet_match/src/utils/firebase_options.dart';
 import 'package:pet_match/src/utils/rest_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class FirebaseDataSource {
+class AuthRemoteDataSource {
   static const String firebaseAuthClientId =
       "1000051075559-gdsppsaspenpnlg5mbhn9gdkaeu1e547.apps.googleusercontent.com";
   static const _authServer = "/pet-match/api/v1/auth/authenticate";
@@ -21,7 +20,7 @@ class FirebaseDataSource {
 
   String? get userId => fi.currentUser?.uid;
 
-  FirebaseDataSource(RestClient restClient, SharedPreferences localStorage) {
+  AuthRemoteDataSource(RestClient restClient, SharedPreferences localStorage) {
     _restClient = restClient;
     _localStorage = localStorage;
   }
@@ -85,5 +84,9 @@ class FirebaseDataSource {
   Future<User> link(PhoneAuthCredential credential) async {
     var cre = await fi.currentUser!.linkWithCredential(credential);
     return cre.user!;
+  }
+
+  Future<void> signOut() async {
+    await fi.signOut();
   }
 }

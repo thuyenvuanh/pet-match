@@ -99,7 +99,7 @@ class _BreedSelectionPageState extends State<BreedSelectionPage> {
           left: 40,
           right: 40,
           child: Button(
-              label: "Tiep theo",
+              label: "Tiếp theo",
               onTap: () {
                 if (breed == null) {
                   setErrorMessage();

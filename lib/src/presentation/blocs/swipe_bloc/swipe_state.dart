@@ -5,7 +5,7 @@ abstract class SwipeState extends Equatable {}
 
 abstract class FetchProfilesStates extends SwipeState {}
 
-abstract class CommentStates extends SwipeState {}
+abstract class FetchLikedProfilesState extends SwipeState {}
 
 class SwipeInitial extends SwipeState {
   @override
@@ -38,17 +38,22 @@ class SwipeDone extends SwipeState {
   List<Object?> get props => [profile];
 }
 
-class FetchCommentsOK extends CommentStates {
-  final List<Comment> comments;
-  FetchCommentsOK(this.comments);
+class FetchLikedProfileLoading extends FetchLikedProfilesState {
   @override
-  List<Object?> get props => [comments];
+  List<Object?> get props => [];
 }
 
-class FetchCommentError extends CommentStates {
+class FetchLikedProfilesOK extends FetchLikedProfilesState {
+  final List<Like> likedProfiles;
+  FetchLikedProfilesOK(this.likedProfiles);
+  @override
+  List<Object?> get props => [likedProfiles];
+}
+
+class FetchLikedProfilesError extends FetchLikedProfilesState {
   final String message;
-  FetchCommentError(this.message);
-  
+  FetchLikedProfilesError(this.message);
+
   @override
   List<Object?> get props => [message];
 }

@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ProfileLocalDatasource {
   final SharedPreferences localStorage;
   final String activeProfile = "activeProfile";
+  final String likedProfiles = 'likedProfiles';
 
   ProfileLocalDatasource(this.localStorage);
 
@@ -42,6 +43,7 @@ class ProfileLocalDatasource {
   Future<bool> disableActiveProfile() async {
     dev.log('removing active Profile');
     var res = await localStorage.remove(activeProfile);
+    await localStorage.remove(likedProfiles);
     if (res) {
       dev.log("$activeProfile removed");
     } else {

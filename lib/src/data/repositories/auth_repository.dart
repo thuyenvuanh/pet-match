@@ -2,15 +2,17 @@ import 'dart:developer' as dev;
 
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pet_match/src/data/datasources/local/auth_local_datasource.dart';
 import 'package:pet_match/src/data/datasources/remote/firebase_datasource.dart';
 import 'package:pet_match/src/domain/repositories/auth_repository.dart';
 import 'package:pet_match/src/utils/error/exceptions.dart';
 import 'package:pet_match/src/utils/error/failure.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final FirebaseDataSource _firebaseDataSource;
+  final AuthRemoteDataSource _authRemoteDataSource;
+  final AuthLocalDataSource _authLocalDatasource;
 
-  AuthRepositoryImpl(this._firebaseDataSource);
+  AuthRepositoryImpl(this._authRemoteDataSource, this._authLocalDatasource);
 
   @override
   Future<Either<Failure, void>> sendOtp({
@@ -21,7 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required Function(String) codeAutoRetrievalTimeout,
   }) async {
     try {
-      final res = await _firebaseDataSource.sendOtp(
+      final res = await _authRemoteDataSource.sendOtp(
         phoneNumber: phoneNumber,
         verificationCompleted: verificationCompleted,
         verificationFailed: verificationFailed,
@@ -42,7 +44,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, User>> signInWithGoogle() async {
     try {
-      var user = await _firebaseDataSource.signInGoogle();
+      var user = await _authRemoteDataSource.signInGoogle();
       if (user != null) {
         return Right(user);
       } else {
@@ -57,8 +59,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> signOut() {
-    throw UnimplementedError();
+  Future<void> signOut() async {
+    try {
+      await _authLocalDatasource.signOut();
+      await _authRemoteDataSource.signOut();
+    } catch (e) {
+      dev.log('sign out failed with error: ${e.runtimeType}');
+    }
   }
 
   @override
@@ -69,7 +76,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, User>> link(PhoneAuthCredential credential) async {
     try {
-      return Right(await _firebaseDataSource.link(credential));
+      return Right(await _authRemoteDataSource.link(credential));
     } catch (e) {
       return const Left(AuthFailure(message: "Link failed"));
     }
@@ -77,7 +84,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, String>> getUserId() async {
-    var uid = _firebaseDataSource.userId;
+    var uid = _authRemoteDataSource.userId;
     if (uid != null) {
       return Right(uid);
     } else {

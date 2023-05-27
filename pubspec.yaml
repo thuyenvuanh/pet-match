@@ -23,6 +23,8 @@ dependencies:
   flutter_bloc: ^8.1.2
   flutter_carousel_widget: ^2.0.2
   flutter_countdown_timer: ^4.1.0
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: any
   flutter_svg: ^2.0.5
   get_it: ^7.3.0
   google_sign_in: ^6.1.0
@@ -56,6 +58,8 @@ flutter:
     - assets/images/svgs/
     - assets/images/pet_image_placeholder.png
     - assets/images/sign_up_success.png
+    - assets/images/animal.png
+    
   fonts:
     - family: Inter
       fonts:

@@ -179,7 +179,7 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
                           color: Resource.primaryTintColor,
                           borderRadius: Resource.defaultBorderRadius,
                         ),
-                        child: _avatar == null
+                        child: _avatar == null && _bloc.avatar == null
                             ? Center(
                                 child: Image.asset(
                                   "assets/images/pet_image_placeholder.png",
@@ -187,7 +187,7 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
                                   width: 50,
                                 ),
                               )
-                            : Image.file(_avatar!, fit: BoxFit.cover),
+                            : Image.file(_avatar ?? _bloc.avatar!, fit: BoxFit.cover),
                       ),
                     ),
                   ),
@@ -305,7 +305,7 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Button(label: "Tiep theo", onTap: submit),
+                  Button(label: "Tiếp theo", onTap: submit),
                   const SizedBox(height: 40),
                 ],
               ),

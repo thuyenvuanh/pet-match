@@ -114,7 +114,7 @@ class SwipeProvider extends ChangeNotifier {
 
   like([String? comment]) {
     _isButtonsDisabled = true;
-    bloc.add(SwipeLike(Profile(), comment));
+    bloc.add(SwipeLike(_profiles.last, comment));
     _angle = 20;
     _position += Offset(_screenSize.width * 1.5, 0);
     _nextCard();

@@ -21,6 +21,8 @@ class CreateProfileBloc extends Bloc<CreateProfileEvent, CreateProfileState> {
   File? avatarImage;
   Profile newProfile;
 
+  File? get avatar => avatarImage;
+
   Profile get profile => newProfile;
 
   CreateProfileBloc(this.repository, this.storageRepository)

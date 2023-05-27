@@ -11,7 +11,7 @@ import 'package:pet_match/src/presentation/blocs/home_bloc/home_bloc.dart';
 import 'package:pet_match/src/presentation/views/matches_screen.dart';
 import 'package:pet_match/src/presentation/views/message_screen.dart';
 import 'package:pet_match/src/presentation/views/user_screen.dart';
-import 'package:pet_match/src/presentation/views/swipe_screen.dart';
+import 'package:pet_match/src/presentation/views/swipe_screen/swipe_screen.dart';
 import 'package:pet_match/src/utils/constant.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -63,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     super.dispose();
     _homeListener.cancel();
+    _authListener.cancel();
   }
 
   void selectTab(value) => setState(() {
@@ -125,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Positioned.fill(
           child: Offstage(
             offstage: _currentIndex != 1,
-            child: const MatchesScreen(),
+            child: MatchesScreen(),
           ),
         ),
         Positioned.fill(
@@ -137,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Positioned.fill(
           child: Offstage(
             offstage: _currentIndex != 3,
-            child: _profile == null ? const SizedBox() : const UserScreen(),
+            child: const UserScreen(),
           ),
         ),
       ],

@@ -44,7 +44,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<SignOutRequest>((event, emit) async {
       await _profileRepository.disableCurrentActiveProfile();
-      await FirebaseAuth.instance.signOut();
+      await _authRepository.signOut();
       developer.log('signed out');
       emit(Unauthenticated());
     });

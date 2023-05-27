@@ -3,11 +3,11 @@ import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
-import 'package:pet_match/src/injection_container.dart';
 import 'package:pet_match/src/presentation/blocs/swipe_bloc/swipe_bloc.dart';
 import 'package:pet_match/src/presentation/provider/swipe_provider.dart';
+import 'package:pet_match/src/presentation/views/swipe_screen/circle_elevated_button.dart';
+import 'package:pet_match/src/presentation/views/swipe_screen/comment_section.dart';
 import 'package:pet_match/src/presentation/widgets/icon_button.dart';
 import 'package:pet_match/src/presentation/widgets/loading_indicator.dart';
 import 'package:pet_match/src/presentation/widgets/swipeable_card.dart';
@@ -56,71 +56,6 @@ class _SwipeScreenState extends State<SwipeScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-enum ElevatedCircleButtonStyle {
-  white,
-  primary;
-}
-
-class ElevatedCircleButton extends StatelessWidget {
-  const ElevatedCircleButton({
-    super.key,
-    this.size,
-    required this.style,
-    required this.assetImage,
-    this.onTap,
-  });
-
-  //parameters
-  final double? size;
-  final ElevatedCircleButtonStyle style;
-  final String assetImage;
-  final Function()? onTap;
-
-  //UI styles
-  static final whiteCircleButton = BoxDecoration(
-    color: Resource.lightBackground,
-    borderRadius: BorderRadius.circular(78),
-    boxShadow: [
-      BoxShadow(
-          color: Colors.black.withOpacity(0.07),
-          offset: const Offset(0, 20),
-          blurRadius: 20)
-    ],
-  );
-  static final redCircleButton = BoxDecoration(
-    color: Resource.primaryColor,
-    borderRadius: BorderRadius.circular(99),
-    boxShadow: const [
-      BoxShadow(
-          color: Resource.primaryTintColor,
-          offset: Offset(0, 15),
-          blurRadius: 15)
-    ],
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(size ?? 78),
-      splashColor: style == ElevatedCircleButtonStyle.white
-          ? Resource.primaryTintColor
-          : Colors.white.withOpacity(0.5),
-      highlightColor: Colors.transparent,
-      child: Container(
-        height: size ?? 78,
-        width: size ?? 78,
-        decoration: style == ElevatedCircleButtonStyle.white
-            ? whiteCircleButton
-            : ElevatedCircleButton.redCircleButton,
-        child: Center(
-          child: SvgPicture.asset(assetImage),
         ),
       ),
     );
@@ -217,93 +152,6 @@ class _SwipeStackState extends State<SwipeStack> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class CommentBottomSheet extends StatefulWidget {
-  const CommentBottomSheet({super.key});
-
-  @override
-  State<CommentBottomSheet> createState() => _CommentBottomSheetState();
-}
-
-class _CommentBottomSheetState extends State<CommentBottomSheet> {
-  static const _enableColor = Color(0x4D000000);
-  static const enableBorderSide = BorderSide(color: _enableColor);
-  static const errorBorderSide = BorderSide(color: Colors.red);
-
-  final TextEditingController _commentController = TextEditingController();
-
-  @override
-  void dispose() {
-    _commentController.dispose();
-    super.dispose();
-  }
-
-  void sendComment([String? value]) {
-    //? value is not need because we have controller
-    if (_commentController.text.isEmpty) {
-      dev.log('nothing to send');
-    } else {
-      dev.log('sending: ${_commentController.text}');
-    }
-    Navigator.pop(context, [_commentController.text]);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: TextField(
-              onSubmitted: sendComment,
-              controller: _commentController,
-              autofocus: true,
-              maxLines: null, // Set this
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.send,
-              style: const TextStyle(fontSize: 16),
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.all(20),
-                hintText: "Viết tin nhắn",
-                focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: errorBorderSide,
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: Resource.defaultBorderRadius,
-                  borderSide: errorBorderSide,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: Resource.defaultBorderRadius,
-                  borderSide: enableBorderSide,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: Resource.defaultBorderRadius,
-                  borderSide: enableBorderSide,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          RoundedIconButton(
-            color: Colors.transparent,
-            borderColor: _enableColor,
-            onTap: sendComment,
-            child: SizedBox(
-              height: 28,
-              width: 28,
-              child: SvgPicture.asset(
-                'assets/images/svgs/send-comment.svg',
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

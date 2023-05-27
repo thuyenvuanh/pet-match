@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class Failure extends Equatable {
@@ -40,9 +41,9 @@ class SharedPreferencesFailure extends Failure {
   const SharedPreferencesFailure(
       {required this.errorCode, required this.message});
 
-  SharedPreferencesFailure.notFound(Type? type)
+  SharedPreferencesFailure.notFound({Type? type, String? key})
       : errorCode = "NOT_FOUND",
-        message = '${type?.toString()} Not Found';
+        message = '${type?.toString() ?? key} Not Found';
 }
 
 class ProfileFailure extends Failure {
@@ -61,3 +62,5 @@ class NotFoundFailure extends Failure {
   final String value;
   const NotFoundFailure({required this.object, required this.value});
 }
+
+class RefreshTokenInvalidFailure extends Failure {}

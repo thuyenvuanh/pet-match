@@ -2,13 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:developer' as dev;
 
-import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pet_match/src/api/api_error.dart';
 import 'package:pet_match/src/domain/models/token_model.dart';
 import 'package:pet_match/src/utils/error/exceptions.dart';
-import 'package:pet_match/src/utils/error/failure.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RestClient {
@@ -33,10 +31,15 @@ class RestClient {
       return null;
     } else {
       const path = '/pet-match/api/v1/auth/refresh-token';
-      final resBody = await post(path, authorization: false, headers: {
-        'Authorization': 'Bearer ${token.refreshToken!}',
-      });
-      return AuthorizationToken.fromJson(json.decode(resBody));
+      try {
+        final resBody = await post(path, authorization: false, headers: {
+          'Authorization': 'Bearer ${token.refreshToken!}',
+        });
+        return AuthorizationToken.fromJson(json.decode(resBody));
+      } on RequestException catch (e) {
+        dev.log("refresh-token invalid or expired. Signing out");
+        throw RefreshTokenInvalidException();
+      }
     }
   }
 
@@ -85,10 +88,14 @@ class RestClient {
         headers.addAll(await _buildAuthorizationHeader());
       }
       var res = await http.get(uri, headers: headers);
-      if (res.statusCode == 200) {
+      if (res.statusCode >= 200 && res.statusCode < 400) {
         return utf8.decode(res.bodyBytes);
       } else {
         String body = utf8.decode(res.bodyBytes);
+        if (body.isEmpty) {
+          //in some case return unauthorize 401 with blank res body
+          throw RequestException(ApiError(statusCode: res.statusCode));
+        }
         ApiError error = ApiError.fromJson(json.decode(body));
         error.statusCode = res.statusCode;
         throw RequestException(error);
@@ -137,7 +144,12 @@ class RestClient {
         return utf8.decode(res.bodyBytes);
       } else {
         String resBody = utf8.decode(res.bodyBytes);
+        if (resBody.isEmpty) {
+          //in some case return unauthorize 401 with blank res body
+          throw RequestException(ApiError(statusCode: res.statusCode));
+        }
         ApiError error = ApiError.fromJson(json.decode(resBody));
+        error.statusCode = res.statusCode;
         throw RequestException(error);
       }
     } on SocketException {
