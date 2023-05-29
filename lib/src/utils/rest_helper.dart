@@ -11,7 +11,8 @@ import 'package:pet_match/src/utils/extensions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RestClient {
-  static const _host = "10.0.2.2";
+  static const _host = "18.143.40.6";
+  // static const _host = "10.0.2.2";
   static const _port = 8080;
   static const _scheme = "http";
 
