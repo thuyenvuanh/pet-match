@@ -44,7 +44,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
       body: SafeArea(
         child: Builder(builder: (context) {
           if (profile == null) {
-            return const LoadingIndicator();
+            return const LoadingIndicator(
+              loadingText: 'Loading profile',
+            );
           }
           return SingleChildScrollView(
             physics: const ClampingScrollPhysics(),

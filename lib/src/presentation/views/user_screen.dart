@@ -52,7 +52,8 @@ class _UserScreenState extends State<UserScreen> {
         resizeToAvoidBottomInset: false,
         body: Builder(builder: (context) {
           if (profile == null) {
-            return const LoadingIndicator();
+            return const LoadingIndicator(
+                loadingText: 'Đang lấy dữ liệu người dùng. Vui lòng chờ...');
           }
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -74,7 +74,10 @@ class _ProfileSelectScreenState extends State<ProfileSelectScreen> {
             if (state is NoProfileFetched) {
               return _buildCreateNewProfile();
             }
-            return const LoadingIndicator();
+            return const LoadingIndicator(
+              loadingText:
+                  "Đang lấy hố sơ của bạn. Vui lòng chờ trong giây lát",
+            );
           },
         ),
       ),
