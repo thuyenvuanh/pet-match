@@ -28,10 +28,11 @@ class ProfileLocalDatasource {
       if (profileEncoded == null || profileEncoded == 'null') {
         throw NotFoundException('activeProfile');
       }
+      dev.log('[profile_local_datasource] Profile found');
       Profile profile = Profile.fromJson(profileEncoded ?? {});
       return profile;
     } on NotFoundException {
-      dev.log('Not found exception for key: $activeProfile');
+      dev.log('$activeProfile not found');
       return null;
     } on Exception {
       dev.log('Unknown exception thrown');

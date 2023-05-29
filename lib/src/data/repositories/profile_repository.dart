@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as dev;
 
 import 'package:dartz/dartz.dart';
@@ -28,10 +29,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
     if (localProfile == null || force) {
       var profile = await remoteDataSource.getProfileById(profileId);
       if (profile == null) {
-        dev.log('Profile not found with ID: $profileId');
+        dev.log('[profile_repository] Profile not found with ID: $profileId');
         return Left(NotFoundFailure(object: 'Profile', value: profileId));
       } else {
-        dev.log("Profile found");
+        dev.log("[profile_repository] Profile found");
         return Right(profile);
       }
     } else {
@@ -46,6 +47,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Right(profiles);
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
+    } on TimeoutException catch (e) {
+      return Left(TimeoutFailure('userId: $userId, Server take too long'));
     }
   }
 

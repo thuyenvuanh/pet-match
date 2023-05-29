@@ -35,7 +35,7 @@ class SwipeBloc extends Bloc<SwipeEvent, SwipeState> {
         _randomNames = RandomNames(Zone.us),
         super(SwipeInitial()) {
     on<FetchNewProfiles>((event, emit) async {
-      dev.log('fetching new profiles');
+      dev.log('[swipe_bloc] fetching suggested profiles');
       //! REPLACE WITH FETCHING FUNCTIONS
       var profiles = List.generate(
           10,
@@ -59,33 +59,35 @@ class SwipeBloc extends Bloc<SwipeEvent, SwipeState> {
               ));
       await Future.delayed(const Duration(seconds: 1))
           .then((value) => emit(FetchNewProfilesOk(profiles)));
-      dev.log('new profile sent');
+      dev.log('[swipe_bloc] new profiles sent');
     });
     on<SwipeLike>((event, emit) async {
-      dev.log('SwipeLike');
+      dev.log('[swipe_bloc] SwipeLike');
       var res =
           await _swipeRepository.likeProfile(event.profile, event.comment);
       res.fold((l) {
-        dev.log('Something went wrong. The liked profile will not be saved');
+        dev.log(
+            '[swipe_bloc] Something went wrong. The liked profile will not be saved');
       }, (r) {
-        dev.log('Profile and comment saved successfully');
+        dev.log('[swipe_bloc] Profile and comment saved successfully');
       });
       emit(SwipeDone(Profile()));
       add(FetchLikedProfiles());
     });
     on<SwipePass>((event, emit) {
-      dev.log('SwipePass');
+      dev.log('[swipe_bloc] SwipePass');
       emit(SwipeDone(Profile()));
     });
     on<FetchLikedProfiles>((event, emit) async {
-      dev.log('fetching likedProfiles');
+      dev.log('[swipe_bloc] fetching likedProfiles');
       List<Like> likedProfiles = [];
       final res = await _swipeRepository.getLikedProfile();
       res.fold((l) {
-        dev.log('fetch liked profiles error');
+        dev.log('[swipe_bloc] fetch liked profiles error');
         emit(FetchLikedProfilesError(l.runtimeType.toString()));
       }, (likes) {
-        dev.log('liked profiles founds with ${likes.length} entities');
+        dev.log(
+            '[swipe_bloc] liked profiles founds with ${likes.length} entities');
         likedProfiles.addAll(likes);
       });
       emit(FetchLikedProfilesOK(likedProfiles));

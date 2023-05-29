@@ -57,6 +57,12 @@ class NetworkFailure extends Failure {
   const NetworkFailure({required this.message});
 }
 
+class TimeoutFailure extends Failure {
+  final String message;
+
+  const TimeoutFailure(this.message);
+}
+
 class NotFoundFailure extends Failure {
   final String object;
   final String value;

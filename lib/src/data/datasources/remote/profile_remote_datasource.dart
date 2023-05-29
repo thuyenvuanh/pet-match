@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
 
@@ -21,6 +22,9 @@ class ProfileRemoteDataSource {
       return [...body.map((e) => Profile.fromShortJson(e)).toList()];
     } on NetworkException {
       dev.log('cannot get profiles of $userId');
+      rethrow;
+    } on TimeoutException {
+      dev.log('Server take too long to response');
       rethrow;
     }
   }

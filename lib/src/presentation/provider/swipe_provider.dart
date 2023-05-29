@@ -28,9 +28,6 @@ class SwipeProvider extends ChangeNotifier {
         case SwipeDone:
           dev.log("Swipe Done from provider");
           break;
-        default:
-          dev.log(state.runtimeType.toString());
-          dev.log("Initial state");
       }
     });
   }

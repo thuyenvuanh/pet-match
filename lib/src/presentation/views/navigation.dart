@@ -15,19 +15,16 @@ import 'package:pet_match/src/presentation/views/swipe_screen/swipe_screen.dart'
 import 'package:pet_match/src/utils/constant.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, this.initialRoutes = AppRoutes.root});
-
-  final AppRoutes initialRoutes;
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late int _currentIndex;
+  late int _currentIndex = 0;
 
   late final StreamSubscription _homeListener, _authListener;
-  Profile? _profile;
   @override
   void initState() {
     super.initState();
@@ -37,7 +34,6 @@ class _HomeScreenState extends State<HomeScreen> {
             context, AppRoutes.profiles.name, (route) => false);
       }
       if (state is ActiveProfile) {
-        _profile = state.activeProfile;
       }
     });
     _authListener = BlocProvider.of<AuthBloc>(context).stream.listen((state) {
@@ -46,17 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
             context, AppRoutes.signIn.name, (route) => false);
       }
     });
-    switch (widget.initialRoutes) {
-      case AppRoutes.root:
-        _currentIndex = 0;
-        break;
-      case AppRoutes.profiles:
-        _currentIndex = 3;
-        break;
-      default:
-        _currentIndex = 0;
-        dev.log("Invalid route");
-    }
   }
 
   @override

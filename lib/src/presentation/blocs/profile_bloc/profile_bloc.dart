@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
 import 'package:pet_match/src/domain/repositories/auth_repository.dart';
 import 'package:pet_match/src/domain/repositories/profile_repository.dart';
+import 'package:pet_match/src/utils/error/failure.dart';
 
 part 'profile_event.dart';
 part 'profile_state.dart';
@@ -28,8 +29,13 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         var either = await _profileRepository.getProfiles(uid);
         either.fold(
           (failure) {
-            emit(FetchedError(
-                'fetched error with type: ${failure.runtimeType}'));
+            if (failure.runtimeType == TimeoutFailure) {
+              failure as TimeoutFailure;
+              emit(FetchedError(failure.message));
+            } else {
+              emit(FetchedError(
+                  'fetched error with type: ${failure.runtimeType}'));
+            }
           },
           (profiles) {
             if (profiles.isEmpty) {

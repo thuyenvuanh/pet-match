@@ -1,4 +1,4 @@
-import 'dart:developer' as developer;
+import 'dart:developer' as dev;
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -14,6 +14,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   HomeBloc(this.profileRepository) : super(HomeInitial()) {
     on<GetInitialData>((event, emit) {
+      dev.log('[home_bloc] get initial data');
       var res = profileRepository.getCurrentActiveProfile();
       res.fold((failure) {
         emit(NoActiveProfile());
@@ -23,18 +24,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           emit(ActiveProfile(activeProfile));
           add(FetchNewData());
         } on Exception {
-          developer.log("active profile is null");
+          dev.log("[home_bloc] Something went wrong!");
           emit(NoActiveProfile());
         }
       });
     });
     on<FetchNewData>((event, emit) async {
+      dev.log('[home_bloc] Fetching new data');
       if (activeProfile.id == null) {
-        emit(NoActiveProfile());
+        dev.log('[home_bloc] no active profile found to fetch new data');
       } else {
-        var res = await profileRepository.getProfileById(activeProfile.id!, true);
+        var res =
+            await profileRepository.getProfileById(activeProfile.id!, true);
         res.fold((failure) {
-          developer.log("Get profile data error");
+          dev.log("[home_bloc] Get profile data error");
         }, (profile) {
           activeProfile = profile!;
           profileRepository.cacheCurrentActiveProfile(profile);

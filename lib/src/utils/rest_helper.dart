@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:developer' as dev;
@@ -91,7 +92,9 @@ class RestClient {
       if (authorization) {
         headers.addAll(await _buildAuthorizationHeader());
       }
-      var res = await http.get(uri, headers: headers);
+      var res = await http
+          .get(uri, headers: headers)
+          .timeout(const Duration(seconds: 10));
       if (res.statusCode >= 200 && res.statusCode < 400) {
         return utf8.decode(res.bodyBytes);
       } else {
@@ -104,6 +107,8 @@ class RestClient {
         error.statusCode = res.statusCode;
         throw RequestException(error);
       }
+    } on TimeoutException {
+      rethrow;
     } on SocketException {
       throw const NetworkException('No internet connection');
     } on RequestException {
@@ -143,7 +148,9 @@ class RestClient {
       if (authorization) {
         headers.addAll(await _buildAuthorizationHeader());
       }
-      var res = await http.post(uri, headers: headers, body: body);
+      var res = await http
+          .post(uri, headers: headers, body: body)
+          .timeout(const Duration(seconds: 10));
       if (res.statusCode < 400 && res.statusCode >= 200) {
         return utf8.decode(res.bodyBytes);
       } else {
@@ -158,6 +165,8 @@ class RestClient {
       }
     } on SocketException {
       throw const NetworkException('No internet connection');
+    } on TimeoutException {
+      rethrow;
     } catch (e) {
       dev.log(
           'error throw when send post request to $path. Type: ${e.runtimeType.toString()}');

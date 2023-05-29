@@ -51,7 +51,6 @@ class _ProfileSelectScreenState extends State<ProfileSelectScreen> {
           bloc: _bloc,
           buildWhen: (previous, current) {
             var res = current is! LoggingIntoProfile;
-            res = res && current is! FetchedError;
             return res;
           },
           builder: (context, state) {
@@ -61,9 +60,18 @@ class _ProfileSelectScreenState extends State<ProfileSelectScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text('Có lỗi xảy ra, vui lòng thử lại sau.'),
+                  const SizedBox(height: 20),
+                  Text(
+                    state.message,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 40),
                   Button(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
                     label: 'Refresh',
-                    onTap: () {},
+                    onTap: () {
+                      _bloc.add(FetchAvailableProfiles());
+                    },
                   ),
                 ],
               );
