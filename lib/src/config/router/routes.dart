@@ -1,13 +1,10 @@
 import 'dart:developer' as developer;
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pet_match/src/domain/repositories/onboarding_repository.dart';
 import 'package:pet_match/src/domain/repositories/profile_repository.dart';
 import 'package:pet_match/src/domain/repositories/storage_repository.dart';
 import 'package:pet_match/src/injection_container.dart';
-import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/create_profile_bloc/create_profile_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/home_bloc/home_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/onboarding_bloc/onboarding_bloc.dart';
@@ -23,10 +20,7 @@ import 'package:pet_match/src/utils/error/error_screen.dart';
 
 class RouteGenerator {
   static signInRoute() => CupertinoPageRoute(
-        builder: (context) => BlocProvider(
-          create: (context) => sl<AuthBloc>(),
-          child: const SignInScreen(),
-        ),
+        builder: (context) => const SignInScreen(),
       );
 
   static homeRoute() => CupertinoPageRoute(
@@ -36,7 +30,6 @@ class RouteGenerator {
                 create: (context) => sl<HomeBloc>()..add(GetInitialData())),
             BlocProvider(create: (context) => sl<ProfileBloc>()),
             BlocProvider(create: (context) => sl<SwipeBloc>()),
-            BlocProvider(create: (context) => sl<AuthBloc>()),
           ],
           child: const HomeScreen(),
         ),
@@ -57,10 +50,7 @@ class RouteGenerator {
       );
 
   static phoneVerificationRoute() => CupertinoPageRoute(
-        builder: (context) => BlocProvider(
-          create: (context) => sl<AuthBloc>(),
-          child: const PhoneVerification(),
-        ),
+        builder: (context) => const PhoneVerification(),
       );
 
   static createProfileRoute() => CupertinoPageRoute(
@@ -77,15 +67,7 @@ class RouteGenerator {
     AppRoutes route = AppRoutes.fromString(settings.name);
     switch (route) {
       case AppRoutes.root:
-        var user = FirebaseAuth.instance.currentUser;
-        if (user == null || user.phoneNumber == null) {
-          var onboardingRepo = sl<OnboardingRepository>()
-              .getOnboardingEnableStatus()
-              .getOrElse(() => true);
-          return onboardingRepo ? onboardingRoute() : signInRoute();
-        } else {
-          return homeRoute();
-        }
+        return homeRoute();
       case AppRoutes.onboarding:
         return onboardingRoute();
       case AppRoutes.signIn:

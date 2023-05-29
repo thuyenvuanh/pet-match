@@ -1,3 +1,4 @@
+import 'package:pet_match/src/utils/extensions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingLocalDatasource {
@@ -7,9 +8,9 @@ class OnboardingLocalDatasource {
   final String onboardingEnabled = "onboardingEnabled";
 
   bool get isOnboardingEnable =>
-      localStorage.getBool(onboardingEnabled) ?? true;
+      localStorage.getFromGlobalStorage(onboardingEnabled) as bool? ?? true;
 
-  void disableOnboardingScreen() {
-    localStorage.setBool(onboardingEnabled, false);
+  Future<void> disableOnboardingScreen() async {
+    await localStorage.addToGlobalStorage(onboardingEnabled, false);
   }
 }

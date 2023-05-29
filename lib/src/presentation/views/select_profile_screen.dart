@@ -60,7 +60,7 @@ class _ProfileSelectScreenState extends State<ProfileSelectScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text('There\'s an error while getting your profiles'),
+                  const Text('Có lỗi xảy ra, vui lòng thử lại sau.'),
                   Button(
                     label: 'Refresh',
                     onTap: () {},
@@ -142,7 +142,7 @@ class _ProfileSelectScreenState extends State<ProfileSelectScreen> {
               Padding(
                 padding: EdgeInsets.only(top: 70),
                 child: Text(
-                  "Profiles",
+                  "Chọn hồ sơ",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,

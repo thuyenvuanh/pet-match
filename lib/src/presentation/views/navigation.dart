@@ -126,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Positioned.fill(
           child: Offstage(
             offstage: _currentIndex != 1,
-            child: MatchesScreen(),
+            child: const MatchesScreen(),
           ),
         ),
         Positioned.fill(

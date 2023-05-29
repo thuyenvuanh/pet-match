@@ -93,4 +93,28 @@ class AuthRepositoryImpl implements AuthRepository {
               'You\'re not logged. Logged in first to view created profiles'));
     }
   }
+
+  ///Authenticated criteria:
+  ///- Firebase Instance signed in
+  ///- Have accessToken and refreshToken
+  ///- Refresh token duration > 1 day
+  ///
+  @override
+  Future<Either<Failure, bool>> getInitAuthStatus() async {
+    try {
+      bool isAuthOk = _authLocalDatasource.getCurrentAuthStatus();
+      isAuthOk = _authRemoteDataSource.fi.currentUser != null;
+      if (isAuthOk) {
+        return const Right(true);
+      } else {
+        _authLocalDatasource.signOut();
+        _authRemoteDataSource.signOut();
+        return const Right(false);
+      }
+    } catch (e) {
+      dev.log(
+          'Error thrown when get init auth state with type: ${e.runtimeType}');
+      return Left(AuthFailure(message: e.runtimeType.toString()));
+    }
+  }
 }

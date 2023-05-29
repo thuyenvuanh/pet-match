@@ -7,12 +7,15 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pet_match/src/api/api_error.dart';
 import 'package:pet_match/src/domain/models/token_model.dart';
 import 'package:pet_match/src/utils/error/exceptions.dart';
+import 'package:pet_match/src/utils/extensions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RestClient {
   static const _host = "10.0.2.2";
   static const _port = 8080;
   static const _scheme = "http";
+
+  static const _authKey = 'authToken';
 
   static const Map<String, String> defaultHeaders = {
     'Content-Type': 'application/json; charset=utf-8',
@@ -44,14 +47,14 @@ class RestClient {
   }
 
   Future<Map<String, String>> _buildAuthorizationHeader() async {
-    var token = AuthorizationToken.fromJson(
-        json.decode(localStorage.getString('authToken')!));
+    var token =
+        AuthorizationToken.fromJson(localStorage.getFromAuthStorage(_authKey)!);
     var newToken = await _isTokenExpired(token);
 
     if (newToken != null) {
       dev.log("Token expired and received new token");
       token = newToken;
-      localStorage.setString('authToken', json.encode(token.toJson()));
+      localStorage.addToAuthStorage(_authKey, token.toJson());
     }
     return {'Authorization': 'Bearer ${token.accessToken}'};
   }

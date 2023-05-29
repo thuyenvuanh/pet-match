@@ -11,6 +11,8 @@ class Unauthenticated extends AuthState {}
 
 class Authenticated extends AuthState {}
 
+class GettingAuthorizationStatus extends AuthState {}
+
 class PhoneNumberRequired extends AuthState {
   final User user;
 

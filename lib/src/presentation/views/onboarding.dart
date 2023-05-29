@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -18,20 +19,27 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   late final OnboardingBloc _bloc;
+  late final StreamSubscription _listener;
 
   @override
   void initState() {
     super.initState();
-    _bloc = BlocProvider.of<OnboardingBloc>(context)
-      ..stream.listen((event) {
-        if (event is OnboardingStatus && event.status == false) {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.root.name,
-            (route) => false,
-          );
-        }
-      });
+    _bloc = BlocProvider.of<OnboardingBloc>(context);
+    _listener = _bloc.stream.listen((event) {
+      if (event is OnboardingStatus && event.status == false) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.root.name,
+          (route) => false,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _listener.cancel();
   }
 
   void signIn() {
@@ -85,5 +93,3 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 }
-
-class Routes {}

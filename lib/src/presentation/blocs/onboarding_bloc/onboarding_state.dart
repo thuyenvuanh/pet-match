@@ -15,7 +15,7 @@ class OnboardingStatus extends OnboardingState {
   List<Object?> get props => [];
 }
 
-class OnboardingDisabledSuccesful extends OnboardingState {
+class OnboardingDisabledSuccessful extends OnboardingState {
   @override
   List<Object?> get props => [];
 }

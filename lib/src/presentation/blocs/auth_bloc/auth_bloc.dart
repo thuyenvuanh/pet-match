@@ -1,4 +1,4 @@
-import 'dart:developer' as developer;
+import 'dart:developer' as dev;
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,25 +27,40 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       res.fold(
         (authFailure) {
           authFailure as AuthFailure;
-          developer.log('Auth Failed with message: ${authFailure.message}');
+          dev.log('Auth Failed with message: ${authFailure.message}');
           emit(AuthError(authFailure.message));
         },
         (user) {
           if (user.phoneNumber == null || user.phoneNumber!.isEmpty) {
-            developer.log("Phone number not found");
+            dev.log("Phone number not found");
             emit(PhoneNumberRequired(user));
           } else {
-            developer.log("Authentication success");
+            dev.log("Authentication success");
             emit(Authenticated());
           }
         },
       );
     });
 
+    on<GetAuthorizationStatus>((event, emit) async {
+      emit(GettingAuthorizationStatus());
+      var res = await _authRepository.getInitAuthStatus();
+      res.fold((failure) {
+        dev.log('something went wrong in get authorization status');
+        emit(const AuthError('Unknown error'));
+      }, (isAuthOk) {
+        if (isAuthOk) {
+          emit(Authenticated());
+        } else {
+          emit(Unauthenticated());
+        }
+      });
+    });
+
     on<SignOutRequest>((event, emit) async {
       await _profileRepository.disableCurrentActiveProfile();
       await _authRepository.signOut();
-      developer.log('signed out');
+      dev.log('signed out');
       emit(Unauthenticated());
     });
 
@@ -70,7 +85,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       res.fold((failure) {
         failure as AuthFailure;
-        developer.log("Start verify failed");
+        dev.log("Start verify failed");
         emit(AuthError(failure.message));
       }, (_) {});
     });
@@ -101,11 +116,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   codeSent(verificationId, forceResendingToken) {
-    developer
-        .log("Started verify flow with verification Code: $verificationId");
+    dev.log("Started verify flow with verification Code: $verificationId");
     add(OnCodeSent(verificationId));
-    developer.log(verificationId);
-    developer.log(forceResendingToken.toString());
+    dev.log(verificationId);
+    dev.log(forceResendingToken.toString());
   }
 
   verificationCompleted(phoneAuthCredential) {

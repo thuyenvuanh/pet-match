@@ -22,7 +22,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         //! if fail to get value from share preference then show onboarding as default
         emit(OnboardingStatus(true));
       }, (_) {
-        emit(OnboardingDisabledSuccesful());
+        emit(OnboardingDisabledSuccessful());
       });
     });
   }

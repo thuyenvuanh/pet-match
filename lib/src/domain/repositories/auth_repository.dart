@@ -5,6 +5,8 @@ import 'package:pet_match/src/utils/error/failure.dart';
 abstract class AuthRepository {
   Future<Either<Failure, User>> signInWithGoogle();
 
+  Future<Either<Failure, bool>> getInitAuthStatus();
+
   Future<Either<Failure, User>> signUpWithGoogle();
 
   Future<Either<Failure, void>> sendOtp({

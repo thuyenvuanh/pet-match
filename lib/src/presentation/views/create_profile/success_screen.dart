@@ -13,10 +13,11 @@ class CreateSuccessScreen extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Create Successful'),
+          const Text('Tạo hồ sơ thành công'),
+          const SizedBox(height: 40),
           Button(
             padding: const EdgeInsets.symmetric(horizontal: 40),
-            label: 'Go to home',
+            label: 'Về màn hình chính',
             onTap: () {
               Navigator.pushNamedAndRemoveUntil(
                   context, AppRoutes.root.name, (route) => false);

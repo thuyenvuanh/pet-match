@@ -86,13 +86,15 @@ class _MatchesScreenState extends State<MatchesScreen> {
                         return const Padding(
                           padding: EdgeInsets.only(top: 200),
                           child: Center(
-                            child: Text('Match a pet now'),
+                            child:
+                                Text('Kết nối ngay với những thú cưng khác!'),
                           ),
                         );
                       }
                     }
                     if (state is FetchLikedProfilesError) {
-                      return Text('Something went wrong!');
+                      return const Text(
+                          'Ứng dụng gặp sự cố, vui lòng thử lại sau!');
                     }
                     return const LoadingIndicator();
                   },
