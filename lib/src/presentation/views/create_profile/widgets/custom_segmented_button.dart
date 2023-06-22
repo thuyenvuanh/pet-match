@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pet_match/src/domain/models/gender_model.dart';
 import 'package:pet_match/src/utils/constant.dart';
 import 'package:pet_match/src/utils/extensions.dart';
 
@@ -17,6 +18,9 @@ class CustomSegmentedButton extends StatefulWidget {
 }
 
 class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
+    static const male = "Male";
+    static const female = "Female";
+    static const other = "Other";
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -42,7 +46,7 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
                 onTap: () => widget.onChange("Male"),
                 child: Ink(
                   decoration: BoxDecoration(
-                    color: widget.selected == "Male"
+                    color: widget.selected.toLowerCase() == male.toLowerCase()
                         ? Resource.primaryColor
                         : Colors.white,
                     borderRadius: const BorderRadius.only(
@@ -52,8 +56,8 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
                   ),
                   child: Center(
                     child: Text(
-                      "Male",
-                      style: widget.selected == "Male"
+                      Gender.male.vietnameseName,
+                      style: widget.selected.toLowerCase() == male.toLowerCase()
                           ? const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -70,17 +74,17 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
               color: Colors.transparent,
               clipBehavior: Clip.antiAlias,
               child: InkWell(
-                onTap: () => widget.onChange("Female"),
+                onTap: () => widget.onChange(female),
                 child: Ink(
                   decoration: BoxDecoration(
-                      color: widget.selected == "Female"
+                      color: widget.selected.toLowerCase() == female.toLowerCase()
                           ? Resource.primaryColor
                           : Colors.white,
                       border: const Border.symmetric(
                           vertical: BorderSide(color: Color(0x4D000000)))),
                   child: Center(
-                    child: Text("Female",
-                        style: widget.selected == "Female"
+                    child: Text(Gender.female.vietnameseName,
+                        style: widget.selected.toLowerCase() == female.toLowerCase()
                             ? const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -100,10 +104,10 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
                 topRight: Radius.circular(16),
               ),
               child: InkWell(
-                onTap: () => widget.onChange("Other"),
+                onTap: () => widget.onChange(other),
                 child: Ink(
                   decoration: BoxDecoration(
-                    color: widget.selected == "Other"
+                    color: widget.selected.toLowerCase() == other.toLowerCase()
                         ? Resource.primaryColor
                         : Colors.white,
                     borderRadius: const BorderRadius.only(
@@ -112,8 +116,8 @@ class _CustomSegmentedButtonState extends State<CustomSegmentedButton> {
                     ),
                   ),
                   child: Center(
-                    child: Text("Other",
-                        style: widget.selected == "Other"
+                    child: Text(Gender.other.vietnameseName,
+                        style: widget.selected.toLowerCase() == other.toLowerCase()
                             ? const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,

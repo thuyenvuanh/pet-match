@@ -24,7 +24,10 @@ class FetchedError extends ProfileState {
   const FetchedError(this.message);
 }
 
-class ProfileLoggedIn extends ProfileState {}
+class ProfileLoggedIn extends ProfileState {
+  final Profile activeProfile;
+  const ProfileLoggedIn(this.activeProfile);
+}
 
 class CurrentProfileState extends ProfileState {
   final Profile profile;
@@ -39,3 +42,25 @@ class LoggingIntoProfile extends ProfileState {
 }
 
 class LoginError extends ProfileState {}
+
+class ProfileDetail extends ProfileState {
+  final Profile profile;
+  const ProfileDetail(this.profile);
+}
+
+class ProfileDetailLoading extends ProfileState {}
+
+class ProfileDetailError extends ProfileState {
+  final String message;
+  const ProfileDetailError(this.message);
+}
+
+class ProfileSaveUpdateSuccess extends ProfileState {
+  final Profile profile;
+  const ProfileSaveUpdateSuccess(this.profile);
+}
+
+class ProfileSaveUpdateError extends ProfileState {
+  final String message;
+  const ProfileSaveUpdateError(this.message);
+}

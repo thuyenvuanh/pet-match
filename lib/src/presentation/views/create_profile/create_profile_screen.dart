@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer' as dev;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +49,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   @override
   void dispose() {
     _controller.dispose();
+    _blocListener.cancel();
     super.dispose();
   }
 

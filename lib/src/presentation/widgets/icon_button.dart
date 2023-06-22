@@ -36,6 +36,7 @@ class _RoundedIconButtonState extends State<RoundedIconButton> {
       padding: widget.margin ?? const EdgeInsets.all(0),
       child: Material(
         elevation: 0,
+        color: Colors.transparent,
         borderRadius: widget.borderRadius ?? Resource.defaultBorderRadius,
         child: InkWell(
           splashColor: Resource.primaryTintColor,
@@ -49,11 +50,10 @@ class _RoundedIconButtonState extends State<RoundedIconButton> {
             decoration: BoxDecoration(
               color: widget.color ?? Resource.lightBackground,
               borderRadius: widget.borderRadius ?? Resource.defaultBorderRadius,
-              border: 
-                  Border.all(
-                    color: widget.borderColor ?? const Color(0xFFE8E6EA),
-                    style: BorderStyle.solid,
-                  ),
+              border: Border.all(
+                color: widget.borderColor ?? const Color(0xFFE8E6EA),
+                style: BorderStyle.solid,
+              ),
             ),
             child: Center(child: widget.child),
           ),

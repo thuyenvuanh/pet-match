@@ -1,10 +1,10 @@
 import 'dart:io';
 
 abstract class StorageRepository {
-  void uploadImage(
-    File file, 
-    String refPath, {
-    Function(String url)? onSuccess,
-    Function()? onError,
-  });
+  Future<String> uploadImage(File file, String refPath);
+
+  Future<List<String>> uploadMultipleImages(
+    List<File> images,
+    String refPath,
+  );
 }

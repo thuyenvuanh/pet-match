@@ -45,6 +45,10 @@ class _DateTimePickerState extends State<DateTimePicker> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: Resource.defaultBorderRadius,
+            splashColor: Resource.primaryTintColor,
+            overlayColor: MaterialStateColor.resolveWith(
+              (states) => Resource.primaryTintColor,
+            ),
             onTap: pickDate,
             child: Ink(
               height: 59,
@@ -59,7 +63,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     widget.prefixIcon ?? const SizedBox(),
-                    SizedBox(width: widget.prefixIcon != null ? 8 : 0),
+                    SizedBox(width: widget.prefixIcon != null ? 12 : 0),
                     widget.value != null
                         ? Text(DateFormat("dd/MM/yyyy").format(widget.value!),
                             style: const TextStyle(
@@ -73,7 +77,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
             ),
           ),
         ),
-        widget.errorMessage != null
+        widget.errorMessage != null && widget.errorMessage!.isNotEmpty
             ? Padding(
                 padding: const EdgeInsets.only(left: 20, top: 8),
                 child: Text(

@@ -29,13 +29,29 @@ class FetchNewProfilesError extends FetchProfilesStates {
   List<Object?> get props => [message];
 }
 
-class SwipeDone extends SwipeState {
-  final Profile profile;
+class FetchingNewProfiles extends FetchProfilesStates {
+  @override
+  List<Object?> get props => [];
+}
 
-  SwipeDone(this.profile);
+class SwipeDone extends SwipeState {
+  final int? remainingSwipes;
+  final Subscription subscription;
+
+  SwipeDone({this.remainingSwipes, required this.subscription});
 
   @override
-  List<Object?> get props => [profile];
+  List<Object?> get props => [faker.guid.guid()];
+}
+
+class SwipeFailed extends SwipeState {
+  @override
+  List<Object?> get props => [];
+}
+
+class SwipeGetLimitation extends SwipeState {
+  @override
+  List<Object?> get props => [faker.guid.guid()];
 }
 
 class FetchLikedProfileLoading extends FetchLikedProfilesState {
@@ -44,10 +60,10 @@ class FetchLikedProfileLoading extends FetchLikedProfilesState {
 }
 
 class FetchLikedProfilesOK extends FetchLikedProfilesState {
-  final List<Like> likedProfiles;
+  final List<Reaction> likedProfiles;
   FetchLikedProfilesOK(this.likedProfiles);
   @override
-  List<Object?> get props => [likedProfiles];
+  List<Object?> get props => [faker.guid.guid()];
 }
 
 class FetchLikedProfilesError extends FetchLikedProfilesState {

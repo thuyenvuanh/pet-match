@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,11 +38,7 @@ class _SignInScreenState extends State<SignInScreen> {
           Navigator.pushNamed(context, AppRoutes.otp.name);
           break;
         case Authenticated:
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.root.name,
-            (route) => false,
-          );
+          Navigator.pushReplacementNamed(context, AppRoutes.root.name);
           break;
         case AuthError:
           break;
@@ -108,37 +103,37 @@ class _SignInScreenState extends State<SignInScreen> {
             ),
             Column(
               children: [
-                const TextDivider(
-                  symmetricIndent: 40,
-                  child: Text('Đăng nhập với'),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      RoundedIconButton(
-                        onTap: () {},
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        borderRadius: Resource.defaultBorderRadius,
-                        child: Image.asset(Resource.facebookIcon),
-                      ),
-                      RoundedIconButton(
-                        onTap: () {},
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        borderRadius: Resource.defaultBorderRadius,
-                        child: Image.asset(Resource.googleIcon),
-                      ),
-                      RoundedIconButton(
-                        onTap: () {},
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        borderRadius: Resource.defaultBorderRadius,
-                        child: Image.asset(Resource.instagramIcon),
-                      ),
-                    ],
-                  ),
-                ),
+                // const TextDivider(
+                //   symmetricIndent: 40,
+                //   child: Text('Đăng nhập với'),
+                // ),
+                // Padding(
+                //   padding:
+                //       const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.center,
+                //     children: [
+                //       RoundedIconButton(
+                //         onTap: () {},
+                //         margin: const EdgeInsets.symmetric(horizontal: 10),
+                //         borderRadius: Resource.defaultBorderRadius,
+                //         child: Image.asset(Resource.facebookIcon),
+                //       ),
+                //       RoundedIconButton(
+                //         onTap: () {},
+                //         margin: const EdgeInsets.symmetric(horizontal: 10),
+                //         borderRadius: Resource.defaultBorderRadius,
+                //         child: Image.asset(Resource.googleIcon),
+                //       ),
+                //       RoundedIconButton(
+                //         onTap: () {},
+                //         margin: const EdgeInsets.symmetric(horizontal: 10),
+                //         borderRadius: Resource.defaultBorderRadius,
+                //         child: Image.asset(Resource.instagramIcon),
+                //       ),
+                //     ],
+                //   ),
+                // ),
                 TextButton(
                   onPressed: privacyPolicyView,
                   style: buttonStyle,

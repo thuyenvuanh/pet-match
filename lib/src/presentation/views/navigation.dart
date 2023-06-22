@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:developer' as dev;
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pet_match/src/config/router/routes.dart';
-import 'package:pet_match/src/domain/models/profile_model.dart';
 import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/home_bloc/home_bloc.dart';
+import 'package:pet_match/src/presentation/blocs/profile_bloc/profile_bloc.dart';
+import 'package:pet_match/src/presentation/blocs/subscription_bloc/subscription_bloc.dart';
+import 'package:pet_match/src/presentation/blocs/swipe_bloc/swipe_bloc.dart';
 import 'package:pet_match/src/presentation/views/matches_screen.dart';
 import 'package:pet_match/src/presentation/views/message_screen.dart';
 import 'package:pet_match/src/presentation/views/user_screen.dart';
@@ -24,31 +27,29 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late int _currentIndex = 0;
 
-  late final StreamSubscription _homeListener, _authListener;
   @override
   void initState() {
     super.initState();
-    _homeListener = BlocProvider.of<HomeBloc>(context).stream.listen((state) {
-      if (state is NoActiveProfile) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, AppRoutes.profiles.name, (route) => false);
-      }
-      if (state is ActiveProfile) {
+    BlocProvider.of<ProfileBloc>(context).stream.listen((state) {
+      if (state is ProfileLoggedIn) {
+        BlocProvider.of<SwipeBloc>(context).add(FetchLikedProfiles());
+        BlocProvider.of<SwipeBloc>(context).add(FetchNewProfiles());
       }
     });
-    _authListener = BlocProvider.of<AuthBloc>(context).stream.listen((state) {
-      if (state is Unauthenticated) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, AppRoutes.signIn.name, (route) => false);
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      BlocProvider.of<SubscriptionBloc>(context)
+          .add(const GetSubscriptionData());
+      BlocProvider.of<ProfileBloc>(context).add(GetCurrentProfile());
+      BlocProvider.of<AuthBloc>(context).stream.listen((state) {
+        if (state is Unauthenticated) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.signIn.name,
+            (route) => false,
+          );
+        }
+      });
     });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _homeListener.cancel();
-    _authListener.cancel();
   }
 
   void selectTab(value) => setState(() {

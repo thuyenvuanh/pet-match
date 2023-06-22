@@ -12,6 +12,7 @@ class ProfileRemoteDataSource {
   static const String _getProfilesNP = '/pet-match/api/v1/profiles/user/';
   static const String _getProfileById = '/pet-match/api/v1/profiles/';
   static const String _createProfile = "/pet-match/api/v1/profiles";
+  static const String _updateProfile = "/pet-match/api/v1/profiles";
 
   ProfileRemoteDataSource(this.restClient);
 
@@ -51,8 +52,26 @@ class ProfileRemoteDataSource {
     return null;
   }
 
-  Future<Profile> updateProfile(Profile profile) async {
-    throw UnimplementedError();
+  Future<Profile?> updateProfile(Profile profile, String userId) async {
+    try {
+      var jsonData = json.encode(profile.toJson()..addAll({"user-id": userId}));
+      final res = await restClient.patch(_updateProfile, body: jsonData);
+      Profile body = Profile.fromJson(json.decode(res));
+      return body;
+    } on NetworkException {
+      dev.log("Cannot create profile with name: ${profile.name}");
+      rethrow;
+    } on RequestException catch (ex) {
+      dev.log('Request get failed with status code ${ex.error.statusCode}');
+      if (ex.error.statusCode == 404) {
+        dev.log('Profile not found');
+        return null;
+      }
+    } on Exception catch (ex) {
+      dev.log("Unknown exception thrown: ${ex.runtimeType}");
+      rethrow;
+    }
+    return null;
   }
 
   Future<Profile?> createProfile(Profile profile, String userId) async {

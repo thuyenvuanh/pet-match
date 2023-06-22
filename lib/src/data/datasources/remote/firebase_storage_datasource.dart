@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:developer' as dev;
 
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as path;
@@ -8,43 +7,37 @@ import 'package:firebase_storage/firebase_storage.dart';
 class FirebaseStorageDataSource {
   final fsi = FirebaseStorage.instance;
 
-  void uploadFile(
-    File file, 
-    String refPath, {
-    Function(String url)? onSuccess,
-    Function()? onError,
-  }) async {
+  Future<String> uploadFile(File file, String refPath) async {
     var fileName = path.basename(file.path);
     final storageRef = fsi.ref().child('$refPath/$fileName');
     final uploadTask = storageRef.putFile(file);
-    uploadTask.snapshotEvents.listen((task) async {
-      switch (task.state) {
-        case TaskState.paused:
-          dev.log("Upload is paused.");
-          break;
-        case TaskState.running:
-          final progress = 100.0 * (task.bytesTransferred / task.totalBytes);
-          dev.log('Uploaded $progress');
-          break;
-        case TaskState.success:
-          if (onSuccess != null) {
-            await onSuccess(await storageRef.getDownloadURL());
-          } else {
-            dev.log('no onSuccess callback defined');
-          }
-          break;
-        case TaskState.canceled:
-          dev.log("Upload was canceled");
-          break;
-        case TaskState.error:
-          if (onError != null) {
-            await onError();
-          } else {
-            dev.log('no onError callback defined');
-          }
-          dev.log("Upload failed");
-          break;
-      }
+    final taskSnapshot = await uploadTask.whenComplete(() {});
+    final url = await taskSnapshot.ref.getDownloadURL();
+    return url;
+  }
+
+  Future<List<String>> uploadImages(
+    List<File> images,
+    String refPath,
+  ) async {
+    if (images.isEmpty) return List.empty();
+
+    List<String> downloadUrls = [];
+
+    await Future.forEach(images, (image) async {
+      Reference ref = FirebaseStorage.instance
+          .ref()
+          .child('$refPath/${getFileName(image)}');
+      final UploadTask uploadTask = ref.putFile(image);
+      final TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() {});
+      final url = await taskSnapshot.ref.getDownloadURL();
+      downloadUrls.add(url);
     });
+
+    return downloadUrls;
+  }
+
+  String getFileName(File file) {
+    return file.path.substring(file.path.lastIndexOf("/"));
   }
 }

@@ -4,29 +4,62 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
+import 'package:pet_match/src/domain/models/subscription_model.dart';
+import 'package:pet_match/src/presentation/blocs/profile_bloc/profile_bloc.dart';
+import 'package:pet_match/src/presentation/blocs/subscription_bloc/subscription_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/swipe_bloc/swipe_bloc.dart';
+import 'package:pet_match/src/presentation/widgets/register_dialog.dart';
 
 enum SwipeStatus { like, pass, none }
 
 class SwipeProvider extends ChangeNotifier {
   final SwipeBloc bloc;
-  final double range = 100;
+  final SubscriptionBloc subscriptionBloc;
+  final ProfileBloc profileBloc;
+  final double range = 150;
 
-  SwipeProvider(this.bloc) {
-    _profiles = [];
+  SwipeProvider(
+    this.bloc,
+    this.subscriptionBloc,
+    this.profileBloc,
+  ) {
     notifyListeners();
+    profileBloc.stream.listen((state) {
+      if (state is ProfileLoggedIn || state is ProfileLoggedOut) {
+        _backupList = [];
+        _profiles = [];
+      }
+    });
     bloc.stream.listen((state) {
       switch (state.runtimeType) {
         case FetchNewProfilesOk:
           dev.log("Fetch OK from provider");
-          var newProfiles =
-              (state as FetchNewProfilesOk).profiles.reversed.toList();
-          _profiles = [...newProfiles, ...profiles];
+          var newProfiles = (state as FetchNewProfilesOk).profiles;
+          _backupList.addAll(newProfiles);
+          _profiles.insertAll(
+              0, _backupList.sublist(0, min(10, _backupList.length)).reversed);
+          _backupList.removeRange(0, min(10, _backupList.length));
           _isFetching = false;
           _resetDrag();
           break;
         case SwipeDone:
-          dev.log("Swipe Done from provider");
+          state as SwipeDone;
+          if (state.subscription.name! != SubscriptionName.PREMIUM) {
+            subscriptionBloc.add(GetRemainingSwipes(
+              cache: state.remainingSwipes,
+            ));
+          }
+          if (state.remainingSwipes == null) {
+            _nextCard();
+          }
+          break;
+        case SwipeGetLimitation:
+          subscriptionBloc.add(const GetSubscriptionData(
+            showPremiumDialog: true,
+            dialogPlace: DialogPlace.swipe,
+          ));
+
+          _resetDrag();
           break;
       }
     });
@@ -37,6 +70,7 @@ class SwipeProvider extends ChangeNotifier {
   double _angle = 0;
   Size _screenSize = Size.zero;
   List<Profile> _profiles = [];
+  List<Profile> _backupList = [];
   bool _isFetching = false;
   bool _isButtonsDisabled = false;
   bool _hapticTrack = false;
@@ -46,12 +80,12 @@ class SwipeProvider extends ChangeNotifier {
   double get angle => _angle;
   Size get screenSize => _screenSize;
   List<Profile> get profiles => _profiles;
+
   double get stampOpacity => min(_position.dx.abs() / range, 1);
   bool get isAnimating => _isButtonsDisabled;
 
   setScreenSize(Size size) {
     _screenSize = size;
-    dev.log("${size.width} ${size.height}");
     notifyListeners();
   }
 
@@ -114,27 +148,30 @@ class SwipeProvider extends ChangeNotifier {
     bloc.add(SwipeLike(_profiles.last, comment));
     _angle = 20;
     _position += Offset(_screenSize.width * 1.5, 0);
-    _nextCard();
     notifyListeners();
   }
 
   pass() {
     _isButtonsDisabled = true;
-    bloc.add(SwipePass(Profile()));
+    bloc.add(SwipePass(_profiles.last));
     _angle = -20;
     _position -= Offset(_screenSize.width * 1.5, 0);
-    _nextCard();
     notifyListeners();
   }
 
   Future _nextCard() async {
     if (_profiles.isEmpty) return;
-    if (_profiles.length < 5 && !_isFetching) {
+    if (_backupList.length < 5 && !_isFetching) {
       _isFetching = true;
       bloc.add(FetchNewProfiles());
     }
     await Future.delayed(const Duration(milliseconds: 400));
     _profiles.removeLast();
+    if (_profiles.length == 2) {
+      _profiles.insertAll(
+          0, _backupList.sublist(0, min(8, _backupList.length)).reversed);
+      _backupList.removeRange(0, min(8, _backupList.length));
+    }
     _resetDrag();
   }
 

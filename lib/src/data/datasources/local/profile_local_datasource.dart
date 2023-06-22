@@ -42,8 +42,7 @@ class ProfileLocalDatasource {
 
   Future<bool> disableActiveProfile() async {
     dev.log('removing active Profile');
-    var res = localStorage.removeFromSessionStorage(activeProfile);
-    await localStorage.remove(likedProfiles);
+    var res = await localStorage.resetSessionStorage();
     if (res) {
       dev.log("$activeProfile removed");
     } else {

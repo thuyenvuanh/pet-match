@@ -38,6 +38,5 @@ class CreateProfileError extends CreateProfileState {
 
   const CreateProfileError(this.message);
 
-  @override
   List<Object?> get props => [message];
 }

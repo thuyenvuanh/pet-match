@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pet_match/src/api/auth_request.dart';
 import 'package:pet_match/src/domain/models/token_model.dart';
 import 'package:pet_match/src/utils/error/exceptions.dart';
 import 'package:pet_match/src/utils/extensions.dart';
@@ -44,13 +46,19 @@ class AuthRemoteDataSource {
       );
       await fi.signInWithCredential(credential);
       final idTokenString = (await fi.currentUser?.getIdTokenResult())?.token;
+
+      final authReq = AuthorizationRequest(
+        idTokenString: idTokenString,
+        fcmToken: await FirebaseMessaging.instance.getToken(),
+      );
       var res = await _restClient.post(
         _authServer,
         authorization: false,
-        body: json.encode({'idTokenString': idTokenString}),
+        body: json.encode(authReq.toJson()),
       );
       Map<String, dynamic> response = json.decode(res);
       final authToken = AuthorizationToken.fromJson(response);
+      dev.log(authToken.accessToken!);
       _localStorage.addToAuthStorage(_authKey, authToken.toJson());
       return fi.currentUser!;
     } catch (e) {

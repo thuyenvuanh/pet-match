@@ -1,8 +1,9 @@
 import 'dart:convert';
-import 'dart:developer' as dev;
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:latlng/latlng.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 extension PetMatchDateConverter on DateFormat {
@@ -20,6 +21,22 @@ extension MediaQueryExtension on BuildContext {
   EdgeInsets get screenViewInsets => MediaQuery.of(this).viewInsets;
 
   double? get iconSize => IconTheme.of(this).size;
+}
+
+extension CheckDateTime on DateTime {
+  /// [today] == [0]
+  /// [yesterday] == [-1]
+  /// [tomorrow] == [1]
+  int calculateDifference(DateTime date) {
+    DateTime now = DateTime.now();
+    return DateTime(date.year, date.month, date.day)
+        .difference(DateTime(now.year, now.month, now.day))
+        .inDays;
+  }
+
+  bool isToday() {
+    return calculateDifference(this) == 0;
+  }
 }
 
 extension GlobalStorage on SharedPreferences {
@@ -130,5 +147,19 @@ extension GlobalStorage on SharedPreferences {
 
   Future<bool> resetAuthStorage() async {
     return await setString(_authKey, "{}");
+  }
+}
+
+extension DistanceUtils on LatLng {
+  double calculateDistance(LatLng point) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((point.latitude - latitude) * p) / 2 +
+        c(latitude * p) *
+            c(point.latitude * p) *
+            (1 - c((point.longitude - longitude) * p)) /
+            2;
+    return 12742 * asin(sqrt(a));
   }
 }

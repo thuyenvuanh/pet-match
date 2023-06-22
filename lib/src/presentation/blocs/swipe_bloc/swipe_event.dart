@@ -18,6 +18,14 @@ class SwipeLike extends SwipeEvent {
   List<Object?> get props => [profile.id];
 }
 
+class DontLikeBack extends SwipeEvent {
+  final Profile profile;
+  DontLikeBack(this.profile);
+  
+  @override
+  List<Object?> get props => [profile.id];
+}
+
 class SwipePass extends SwipeEvent {
   final Profile profile;
 

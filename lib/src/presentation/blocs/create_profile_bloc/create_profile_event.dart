@@ -23,6 +23,7 @@ class SaveBasicInformation extends CreateProfileEvent {
   final String? name;
   final String? gender;
   final double? height;
+  final Address? address;
   final double? weight;
   final DateTime? birthday;
 
@@ -32,6 +33,7 @@ class SaveBasicInformation extends CreateProfileEvent {
     this.gender,
     this.height,
     this.weight,
+    this.address,
     this.birthday,
   });
 

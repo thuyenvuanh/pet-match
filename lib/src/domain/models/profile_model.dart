@@ -1,8 +1,9 @@
-import 'dart:io';
 
 import 'package:intl/intl.dart';
+import 'package:pet_match/src/domain/models/address_model.dart';
 import 'package:pet_match/src/domain/models/breed_model.dart';
 import 'package:pet_match/src/domain/models/location_model.dart';
+import 'package:pet_match/src/utils/extensions.dart';
 
 class Profile {
   String? id;
@@ -13,10 +14,10 @@ class Profile {
   double? weight;
   String? avatar;
   DateTime? birthday;
-  Location? location;
   String? description;
   List<Breed>? interests;
   List<String>? gallery;
+  Address? address;
 
   Profile({
     this.id,
@@ -26,11 +27,11 @@ class Profile {
     this.height,
     this.weight,
     this.birthday,
-    this.location,
     this.description,
     this.interests,
     this.gallery,
     this.avatar,
+    this.address,
   });
 
   Profile.fromJson(Map<String, dynamic> json) {
@@ -41,11 +42,9 @@ class Profile {
     avatar = json['avatar'];
     height = json['height'];
     weight = json['weight'];
-    if (json[birthday] != null) {
-      birthday = DateFormat("dd/MM/yyyy HH:mm:ss").parse(json['birthday']);
+    if (json['birthday'] != null) {
+      birthday = DateFormat().parsePetMatch(json['birthday']);
     }
-    location =
-        json['location'] != null ? Location.fromJson(json['location']) : null;
     description = json['description'];
     if (json['interests'] != null) {
       interests = <Breed>[];
@@ -60,12 +59,19 @@ class Profile {
     } else {
       gallery = [];
     }
+    if(json['address'] != null) {
+      address = Address.fromJson(json['address']);
+    }
   }
 
   Profile.fromShortJson(Map<String, dynamic> json) {
     id = json['id'];
     avatar = json['avatar'];
     name = json['name'];
+    breed = json['breed'] != null ? Breed.fromJson(json['breed']) : null;
+    if (json['birthday'] != null) {
+      birthday = DateFormat().parsePetMatch(json['birthday']);
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -80,16 +86,16 @@ class Profile {
     data['height'] = height;
     data['weight'] = weight;
     if (birthday != null) {
-      data['birthday'] = DateFormat("dd/MM/yyyy HH:mm:ss").format(birthday!);
-    }
-    if (location != null) {
-      data['location'] = location!.toJson();
+      data['birthday'] = DateFormat().formatPetMatch(birthday!);
     }
     data['description'] = description;
     if (interests != null) {
       data['interests'] = interests!.map((v) => v.toJson()).toList();
     }
     data['gallery'] = gallery;
+    if(address != null) {
+      data['address'] = address!.toJson();
+    }
     return data;
   }
 }

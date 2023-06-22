@@ -9,17 +9,13 @@ class StorageRepositoryImpl implements StorageRepository {
   StorageRepositoryImpl(this.dataSource);
 
   @override
-  void uploadImage(
-    File file,
-    String refPath, {
-    Function(String url)? onSuccess,
-    Function()? onError,
-  }) {
-    dataSource.uploadFile(
-      file,
-      refPath,
-      onError: onError,
-      onSuccess: onSuccess,
-    );
+  Future<String> uploadImage(File file, String refPath) async {
+    return await dataSource.uploadFile(file, refPath);
+  }
+
+  @override
+  Future<List<String>> uploadMultipleImages(
+      List<File> images, String refPath) async {
+    return await dataSource.uploadImages(images, refPath);
   }
 }

@@ -25,7 +25,6 @@ class _InterestSelectionPageState extends State<InterestSelectionPage> {
 
   // UI state
   late Set<Breed>? _selectedInterests;
-  bool _isSubmitting = false;
 
   //Styles
   final _defaultStyle = BoxDecoration(
@@ -59,12 +58,10 @@ class _InterestSelectionPageState extends State<InterestSelectionPage> {
       }
       if (state is CreateProfileLoading) {
         setState(() {
-          _isSubmitting = true;
         });
       }
       if (state is CreateProfileError) {
         setState(() {
-          _isSubmitting = false;
         });
       }
     });

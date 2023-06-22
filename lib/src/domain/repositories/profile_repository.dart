@@ -16,7 +16,7 @@ abstract class ProfileRepository {
 
   Future<Either<Failure, Profile>> newProfile(Profile profile, String userId);
 
-  Future<Either<Failure, Profile>> updateProfile(Profile profile);
+  Future<Either<Failure, Profile>> updateProfile(Profile profile, String userId);
 
   Future<Either<Failure, Profile>> deleteProfile(String profileId);
 

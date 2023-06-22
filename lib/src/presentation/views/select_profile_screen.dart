@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_match/src/config/router/routes.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
+import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pet_match/src/presentation/widgets/button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/profile_bloc/profile_bloc.dart';
@@ -26,12 +28,21 @@ class _ProfileSelectScreenState extends State<ProfileSelectScreen> {
   @override
   void initState() {
     super.initState();
-    _bloc = BlocProvider.of<ProfileBloc>(context)
-      ..add(FetchAvailableProfiles());
+    _bloc = BlocProvider.of<ProfileBloc>(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (FirebaseAuth.instance.currentUser != null) {
+        _bloc.add(FetchAvailableProfiles());
+      } else {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.signIn.name,
+          (route) => false,
+        );
+      }
+    });
     _listener = _bloc.stream.listen((state) {
       if (state is ProfileLoggedIn) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, AppRoutes.root.name, (route) => false);
+        Navigator.pop(context, [state.activeProfile]);
       }
     });
   }
@@ -44,49 +55,52 @@ class _ProfileSelectScreenState extends State<ProfileSelectScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Resource.lightBackground,
-      body: SafeArea(
-        child: BlocBuilder<ProfileBloc, ProfileState>(
-          bloc: _bloc,
-          buildWhen: (previous, current) {
-            var res = current is! LoggingIntoProfile;
-            return res;
-          },
-          builder: (context, state) {
-            if (state is FetchedError) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text('Có lỗi xảy ra, vui lòng thử lại sau.'),
-                  const SizedBox(height: 20),
-                  Text(
-                    state.message,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 40),
-                  Button(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    label: 'Refresh',
-                    onTap: () {
-                      _bloc.add(FetchAvailableProfiles());
-                    },
-                  ),
-                ],
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: Resource.lightBackground,
+        body: SafeArea(
+          child: BlocBuilder<ProfileBloc, ProfileState>(
+            bloc: _bloc,
+            buildWhen: (previous, current) {
+              var res = current is! LoggingIntoProfile;
+              return res;
+            },
+            builder: (context, state) {
+              if (state is FetchedError) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text('Có lỗi xảy ra, vui lòng thử lại sau.'),
+                    const SizedBox(height: 20),
+                    Text(
+                      state.message,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 40),
+                    Button(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      label: 'Refresh',
+                      onTap: () {
+                        _bloc.add(FetchAvailableProfiles());
+                      },
+                    ),
+                  ],
+                );
+              }
+              if (state is FetchedSuccess) {
+                return _buildProfiles(state.profiles);
+              }
+              if (state is NoProfileFetched) {
+                return _buildCreateNewProfile();
+              }
+              return const LoadingIndicator(
+                loadingText:
+                    "Đang lấy hố sơ của bạn. Vui lòng chờ trong giây lát",
               );
-            }
-            if (state is FetchedSuccess) {
-              return _buildProfiles(state.profiles);
-            }
-            if (state is NoProfileFetched) {
-              return _buildCreateNewProfile();
-            }
-            return const LoadingIndicator(
-              loadingText:
-                  "Đang lấy hố sơ của bạn. Vui lòng chờ trong giây lát",
-            );
-          },
+            },
+          ),
         ),
       ),
     );

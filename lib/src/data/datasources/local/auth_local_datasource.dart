@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pet_match/src/domain/models/token_model.dart';
 import 'package:pet_match/src/utils/extensions.dart';
@@ -22,6 +24,7 @@ class AuthLocalDataSource {
     var authState = _localStorage.getFromAuthStorage(_authKey);
     if (authState == null) return false;
     var token = AuthorizationToken.fromJson(authState);
+    dev.log(token.accessToken.toString());
     if (token.refreshToken == null || token.refreshToken!.isEmpty) return false;
     var map = JwtDecoder.decode(token.refreshToken!);
     var expiredDate = DateTime.fromMillisecondsSinceEpoch(map['exp'] * 1000);

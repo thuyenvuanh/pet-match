@@ -20,7 +20,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(AuthRepository authRepository, ProfileRepository profileRepository)
       : _authRepository = authRepository,
         _profileRepository = profileRepository,
-        super(Unauthenticated()) {
+        super(InitialState()) {
     on<GoogleSignInRequest>((event, emit) async {
       emit(PhoneLinkLoading());
       var res = await _authRepository.signInWithGoogle();

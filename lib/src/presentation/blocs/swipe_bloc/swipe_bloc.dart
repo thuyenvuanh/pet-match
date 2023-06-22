@@ -1,96 +1,165 @@
 import 'dart:developer' as dev;
 
 import 'package:faker/faker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:pet_match/src/domain/models/like.dart';
-import 'package:pet_match/src/domain/models/gender_model.dart';
-import 'package:pet_match/src/domain/models/mock_data/breed.dart';
+import 'package:pet_match/src/domain/models/reaction.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
+import 'package:pet_match/src/domain/models/subscription_model.dart';
+import 'package:pet_match/src/domain/repositories/profile_repository.dart';
+import 'package:pet_match/src/domain/repositories/subscription_repository.dart';
 import 'package:pet_match/src/domain/repositories/swipe_repository.dart';
-import 'package:random_name_generator/random_name_generator.dart';
-import 'package:random_string/random_string.dart';
 
 part 'swipe_event.dart';
 part 'swipe_state.dart';
 
 class SwipeBloc extends Bloc<SwipeEvent, SwipeState> {
   final SwipeRepository _swipeRepository;
-
-  //! TEST VARIABLE - REMOVE
-  final RandomNames _randomNames;
-  final List<String> images = [
-    "https://demostore.properlife.vn/wp-content/uploads/2023/02/dog.jpg",
-    "https://www.cdc.gov/healthypets/images/pets/cute-dog-headshot.jpg?_=42445",
-    "https://millenroadanimalhospital.com/wp-content/uploads/2019/03/Dogs.jpg",
-    // "https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_640.jpg",
-    // "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Cat_November_2010-1a.jpg/1200px-Cat_November_2010-1a.jpg",
-    "https://cdn.tgdd.vn/Files/2021/04/12/1342796/15-giong-cho-canh-dep-de-cham-soc-pho-bien-tai-viet-nam-202104121501444654.jpg",
-  ];
+  final ProfileRepository _profileRepository;
+  final SubscriptionRepository _subscriptionRepository;
 
   SwipeBloc(
     SwipeRepository swipeRepository,
+    ProfileRepository profileRepository,
+    SubscriptionRepository subscriptionRepository,
   )   : _swipeRepository = swipeRepository,
-        _randomNames = RandomNames(Zone.us),
+        _profileRepository = profileRepository,
+        _subscriptionRepository = subscriptionRepository,
         super(SwipeInitial()) {
     on<FetchNewProfiles>((event, emit) async {
       dev.log('[swipe_bloc] fetching suggested profiles');
-      //! REPLACE WITH FETCHING FUNCTIONS
-      var profiles = List.generate(
-          10,
-          (index) => Profile(
-                id: randomString(12),
-                birthday: faker.date.dateTimeBetween(
-                  DateTime(2015),
-                  DateTime.now(),
-                ),
-                breed: breeds.elementAt(
-                    int.parse(randomNumeric(2)).floor() % breeds.length),
-                name: _randomNames.name(),
-                description: randomString(100),
-                gallery: [],
-                gender: Gender.male.name,
-                height: double.parse(randomNumeric(3)),
-                weight: double.parse(randomNumeric(2)),
-                interests: [],
-                avatar: images
-                    .elementAt(int.parse(randomNumeric(4)) % images.length),
-              ));
-      await Future.delayed(const Duration(seconds: 1))
-          .then((value) => emit(FetchNewProfilesOk(profiles)));
+      emit(FetchingNewProfiles());
+      final res = _profileRepository.getCurrentActiveProfile();
+      Profile? profile;
+      res.fold(
+        (failure) {
+          dev.log('Failed to fetch suggestion profiles');
+          emit(FetchNewProfilesError(failure.runtimeType.toString()));
+        },
+        (activeProfile) => profile = activeProfile,
+      );
+      if (profile != null) {
+        final profiles = await _swipeRepository.getSuggestions(profile!);
+        profiles.fold((failure) {
+          dev.log('Get profiles failed');
+          emit(FetchNewProfilesError(failure.runtimeType.toString()));
+        }, (suggestions) {
+          emit(FetchNewProfilesOk(suggestions));
+        });
+      }
       dev.log('[swipe_bloc] new profiles sent');
     });
     on<SwipeLike>((event, emit) async {
       dev.log('[swipe_bloc] SwipeLike');
-      var res =
-          await _swipeRepository.likeProfile(event.profile, event.comment);
-      res.fold((l) {
-        dev.log(
-            '[swipe_bloc] Something went wrong. The liked profile will not be saved');
-      }, (r) {
-        dev.log('[swipe_bloc] Profile and comment saved successfully');
+      final sub = await _subscriptionRepository
+          .getSubscriptionData(FirebaseAuth.instance.currentUser!.uid);
+      if (sub.isLeft()) {
+        dev.log('cannot get subscription data');
+        emit(SwipeFailed());
+        return;
+      }
+      Subscription? data;
+      if (sub.isRight()) {
+        data = sub.getOrElse(() => throw Exception('Not going to happen'));
+      }
+      var isLimit = 0;
+      if (!data!.isActive() && data.name != SubscriptionName.PREMIUM) {
+        isLimit = await _subscriptionRepository.getRemainingSwipeOfDay();
+        if (isLimit <= 0) {
+          emit(SwipeGetLimitation());
+          return;
+        }
+      }
+      final activeProfile = _profileRepository.getCurrentActiveProfile();
+      await activeProfile.fold((failure) {
+        dev.log('cannot get active profile');
+      }, (activeProfile) async {
+        var res = await _swipeRepository.likeProfile(
+          activeProfile,
+          event.profile,
+          event.comment,
+        );
+        res.fold((l) {
+          dev.log(
+              '[swipe_bloc] Something went wrong. The liked profile will not be saved');
+        }, (r) {
+          dev.log('[swipe_bloc] Profile and comment saved successfully');
+        });
+        emit(SwipeDone(
+            remainingSwipes: isLimit == 0 ? 0 : isLimit - 1,
+            subscription: data!));
+        add(FetchLikedProfiles());
+        await _subscriptionRepository.subtractRemains();
+        emit(SwipeDone(subscription: data));
       });
-      emit(SwipeDone(Profile()));
-      add(FetchLikedProfiles());
     });
-    on<SwipePass>((event, emit) {
+    on<SwipePass>((event, emit) async {
       dev.log('[swipe_bloc] SwipePass');
-      emit(SwipeDone(Profile()));
+      final sub = await _subscriptionRepository
+          .getSubscriptionData(FirebaseAuth.instance.currentUser!.uid);
+      if (sub.isLeft()) {
+        dev.log('cannot get subscription data');
+        emit(SwipeFailed());
+        return;
+      }
+      Subscription? data;
+      if (sub.isRight()) {
+        data = sub.getOrElse(() => throw Exception('Not going to happen'));
+      }
+      var isLimit = 0;
+      if (!data!.isActive()) {
+        isLimit = await _subscriptionRepository.getRemainingSwipeOfDay();
+        if (isLimit == 0) {
+          emit(SwipeGetLimitation());
+          return;
+        }
+      }
+      emit(SwipeDone(
+          remainingSwipes: isLimit == 0 ? 0 : isLimit - 1, subscription: data));
+      await _subscriptionRepository.subtractRemains();
+      emit(SwipeDone(subscription: data));
     });
     on<FetchLikedProfiles>((event, emit) async {
       dev.log('[swipe_bloc] fetching likedProfiles');
-      List<Like> likedProfiles = [];
-      final res = await _swipeRepository.getLikedProfile();
-      res.fold((l) {
-        dev.log('[swipe_bloc] fetch liked profiles error');
-        emit(FetchLikedProfilesError(l.runtimeType.toString()));
-      }, (likes) {
-        dev.log(
-            '[swipe_bloc] liked profiles founds with ${likes.length} entities');
-        likedProfiles.addAll(likes);
+      List<Reaction> likedProfiles = [];
+      final activeProfile = _profileRepository.getCurrentActiveProfile();
+      await activeProfile.fold((failure) {
+        dev.log('cannot get active profile');
+        emit(FetchLikedProfilesError("Something went wrong"));
+      }, (profile) async {
+        final res = await _swipeRepository.getLikedProfile(profile);
+        res.fold((l) {
+          dev.log('[swipe_bloc] fetch liked profiles error');
+          emit(FetchLikedProfilesError(l.runtimeType.toString()));
+        }, (likes) {
+          dev.log(
+              '[swipe_bloc] liked profiles founds with ${likes.length} entities');
+          likedProfiles.addAll(likes);
+          emit(FetchLikedProfilesOK(likedProfiles));
+        });
       });
-      emit(FetchLikedProfilesOK(likedProfiles));
+    });
+    on<DontLikeBack>((event, emit) async {
+      final activeProfile = _profileRepository.getCurrentActiveProfile();
+      await activeProfile.fold((l) {
+        dev.log("cannot find current Profile");
+      }, (activeProfile) async {
+        var res = await _swipeRepository.passProfile(
+          event.profile,
+          activeProfile,
+        );
+        await res.fold((l) {
+          dev.log('remove profile failed');
+        }, (r) async {
+          dev.log('[bloc] remove profile success');
+          final likedProfile =
+              await _swipeRepository.getLikedProfile(activeProfile);
+          emit(FetchLikedProfilesOK(likedProfile.getOrElse(() => [])));
+        });
+      });
     });
   }
 }

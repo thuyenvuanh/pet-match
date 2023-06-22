@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pet_match/src/config/router/routes.dart';
 import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pet_match/src/presentation/widgets/button.dart';
@@ -25,7 +24,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   late final AuthBloc _authBloc;
   late final StreamSubscription _authStream;
 
-  bool _hideBackButton = false;
+  final bool _hideBackButton = false;
   String _verificationId = "";
   bool isLoading = false;
 

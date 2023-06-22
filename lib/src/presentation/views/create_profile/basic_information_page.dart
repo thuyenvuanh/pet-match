@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pet_match/src/domain/models/address_model.dart';
 import 'package:pet_match/src/domain/models/breed_model.dart';
 import 'package:pet_match/src/presentation/blocs/create_profile_bloc/create_profile_bloc.dart';
 import 'package:pet_match/src/presentation/views/create_profile/widgets/custom_segmented_button.dart';
+import 'package:pet_match/src/presentation/widgets/address_input_field.dart';
 import 'package:pet_match/src/presentation/widgets/button.dart';
 import 'package:pet_match/src/presentation/widgets/date_time_picker.dart';
 import 'package:pet_match/src/utils/constant.dart';
@@ -39,8 +41,10 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
   var _gender = "Male";
   DateTime? _birthday;
   String? _birthdayErrorMessage;
+  String? _addressErrorMessage;
   File? _avatar;
   bool _avatarError = false;
+  Address _address = Address();
 
   static const birthdayPlaceholder = "Chọn ngày sinh";
   static const _nameLabel = "Tên";
@@ -66,6 +70,10 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
     _weightEditController.text = _bloc.profile.weight?.toString() ?? "";
     _heightEditController.text = _bloc.profile.height?.toString() ?? "";
     _gender = _bloc.profile.gender ?? _gender;
+    _address = _bloc.profile.address ?? Address();
+    if (_bloc.avatarImage != null) {
+      _avatar = _bloc.avatarImage;
+    }
   }
 
   @override
@@ -78,7 +86,7 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
   }
 
   String? _required(String? value) =>
-      value == null || value.isEmpty ? "Required" : null;
+      value == null || value.isEmpty ? "Bắt buộc" : null;
 
   String? _positive(String? value) {
     var number = double.tryParse(value!);
@@ -100,10 +108,19 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
     }
   }
 
+  setAddress(Address? address) {
+    if (address != null) {
+      setState(() {
+        _address = address;
+        _addressErrorMessage = null;
+      });
+    }
+  }
+
   _validateBirthday() {
     if (_birthday == null) {
       setState(() {
-        _birthdayErrorMessage = "Required";
+        _birthdayErrorMessage = "Bắt buộc";
       });
       return false;
     }
@@ -117,10 +134,22 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
     return !_avatarError;
   }
 
+  _validateAddress() {
+    if (_address.address == null) {
+      setState(() {
+        _addressErrorMessage = "Bắt buộc";
+      });
+      return false;
+    }
+    return true;
+  }
+
   void submit() {
-    if (_form.currentState!.validate() &&
-        _validateBirthday() &&
-        _validateAvatar()) {
+    bool result = _form.currentState!.validate();
+    result = _validateAddress() && result;
+    result = _validateBirthday() && result;
+    result = _validateAvatar() && result;
+    if (result) {
       _bloc.add(SaveBasicInformation(
         avatar: _avatar,
         name: _nameEditController.text,
@@ -128,6 +157,7 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
         weight: double.parse(_weightEditController.text),
         birthday: _birthday,
         gender: _gender,
+        address: _address,
       ));
     }
   }
@@ -153,8 +183,11 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
                   ),
                   const SizedBox(height: 16),
                   badges.Badge(
-                    badgeStyle: const badges.BadgeStyle(
-                        badgeColor: Resource.primaryColor),
+                    badgeStyle: badges.BadgeStyle(
+                      badgeColor: Resource.primaryColor,
+                      shape: badges.BadgeShape.square,
+                      borderRadius: Resource.defaultBorderRadius,
+                    ),
                     position: badges.BadgePosition.bottomEnd(),
                     badgeAnimation: const badges.BadgeAnimation.scale(
                       curve: Curves.easeOut,
@@ -162,13 +195,16 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
                       loopAnimation: false,
                       toAnimate: true,
                     ),
-                    badgeContent: Icon(
-                      !_avatarError
-                          ? Icons.image_rounded
-                          : Icons.warning_amber_rounded,
-                      color: Colors.white,
-                      size: 16,
-                    ),
+                    badgeContent: _avatarError
+                        ? const Text(
+                            "Bắt buộc",
+                            style: TextStyle(color: Colors.white),
+                          )
+                        : const Icon(
+                            Icons.image_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
                     child: GestureDetector(
                       onTap: _pickAvatar,
                       child: Container(
@@ -187,7 +223,8 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
                                   width: 50,
                                 ),
                               )
-                            : Image.file(_avatar ?? _bloc.avatar!, fit: BoxFit.cover),
+                            : Image.file(_avatar ?? _bloc.avatar!,
+                                fit: BoxFit.cover),
                       ),
                     ),
                   ),
@@ -303,6 +340,12 @@ class _BasicInformationPageState extends State<BasicInformationPage> {
                         color: Resource.primaryColor,
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  AddressInputField(
+                    address: _address,
+                    setAddress: setAddress,
+                    errorMessage: _addressErrorMessage,
                   ),
                   const SizedBox(height: 16),
                   Button(label: "Tiếp theo", onTap: submit),

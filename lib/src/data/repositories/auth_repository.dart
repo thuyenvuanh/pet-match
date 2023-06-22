@@ -103,7 +103,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, bool>> getInitAuthStatus() async {
     try {
       bool isAuthOk = _authLocalDatasource.getCurrentAuthStatus();
-      isAuthOk = _authRemoteDataSource.fi.currentUser != null;
+      isAuthOk = _authRemoteDataSource.fi.currentUser != null && isAuthOk;
       if (isAuthOk) {
         return const Right(true);
       } else {

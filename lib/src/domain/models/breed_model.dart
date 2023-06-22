@@ -10,7 +10,9 @@ class Breed {
   Breed.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
-    species = Species.fromJson(json['species']);
+    if (json['species'] != null) {
+      species = Species.fromJson(json['species']);
+    }
   }
 
   Map<String, dynamic> toJson() {

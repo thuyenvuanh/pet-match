@@ -14,6 +14,7 @@ class ElevatedCircleButton extends StatelessWidget {
     required this.style,
     required this.assetImage,
     this.onTap,
+    this.assetColor,
   });
 
   //parameters
@@ -21,6 +22,7 @@ class ElevatedCircleButton extends StatelessWidget {
   final ElevatedCircleButtonStyle style;
   final String assetImage;
   final Function()? onTap;
+  final Color? assetColor;
 
   //UI styles
   static final whiteCircleButton = BoxDecoration(
@@ -46,21 +48,32 @@ class ElevatedCircleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(size ?? 78),
-      splashColor: style == ElevatedCircleButtonStyle.white
-          ? Resource.primaryTintColor
-          : Colors.white.withOpacity(0.5),
-      highlightColor: Colors.transparent,
-      child: Container(
-        height: size ?? 78,
-        width: size ?? 78,
-        decoration: style == ElevatedCircleButtonStyle.white
-            ? whiteCircleButton
-            : ElevatedCircleButton.redCircleButton,
-        child: Center(
-          child: SvgPicture.asset(assetImage),
+    return Container(
+      height: size ?? 78,
+      width: size ?? 78,
+      decoration: style == ElevatedCircleButtonStyle.white
+          ? whiteCircleButton
+          : ElevatedCircleButton.redCircleButton,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(size ?? 78),
+          splashColor: style == ElevatedCircleButtonStyle.white
+              ? Resource.primaryTintColor
+              : Colors.white.withOpacity(0.5),
+          highlightColor: Colors.transparent,
+          child: SizedBox(
+            height: size ?? 78,
+            width: size ?? 78,
+            child: Center(
+              child: SvgPicture.asset(
+                assetImage,
+                // ignore: deprecated_member_use
+                color: assetColor,
+              ),
+            ),
+          ),
         ),
       ),
     );

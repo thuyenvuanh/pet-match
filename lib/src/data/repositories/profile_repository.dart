@@ -36,7 +36,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
         return Right(profile);
       }
     } else {
-      return Right(localProfile);
+      if (localProfile.id == profileId) {
+        return Right(localProfile);
+      } else {
+        return Left(NotFoundFailure(object: 'Profile', value: profileId));
+      }
     }
   }
 
@@ -47,7 +51,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Right(profiles);
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
-    } on TimeoutException catch (e) {
+    } on TimeoutException {
       return Left(TimeoutFailure('userId: $userId, Server take too long'));
     }
   }
@@ -59,15 +63,26 @@ class ProfileRepositoryImpl implements ProfileRepository {
     if (res == null) {
       return const Left(ProfileFailure('Error while create profile'));
     } else {
-      localDatasource.cacheActiveProfile(profile);
-      return Right(profile);
+      // localDatasource.cacheActiveProfile(profile);
+      return Right(res);
     }
   }
 
   @override
-  Future<Either<Failure, Profile>> updateProfile(Profile profile) {
-    // TODO: implement updateProfile
-    throw UnimplementedError();
+  Future<Either<Failure, Profile>> updateProfile(
+      Profile profile, String userId) async {
+    try {
+      var res = await remoteDataSource.updateProfile(profile, userId);
+      if (res == null) {
+        return const Left(ProfileFailure('Error while updating profile'));
+      } else {
+        // localDatasource.cacheActiveProfile(profile);
+        return Right(res);
+      }
+    } catch (e) {
+      dev.log('Something went wrong. Type: ${e.runtimeType}');
+      return const Left(RequestFailure(code: "Unknown", reason: "Unknown"));
+    }
   }
 
   @override

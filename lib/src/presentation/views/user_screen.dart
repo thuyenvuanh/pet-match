@@ -4,10 +4,13 @@ import 'dart:developer' as dev;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pet_match/main.dart';
 import 'package:pet_match/src/config/router/routes.dart';
 import 'package:pet_match/src/domain/models/profile_model.dart';
+import 'package:pet_match/src/injection_container.dart';
 import 'package:pet_match/src/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pet_match/src/presentation/blocs/profile_bloc/profile_bloc.dart';
+import 'package:pet_match/src/presentation/views/profile_detail/profile_detail.dart';
 import 'package:pet_match/src/presentation/widgets/loading_indicator.dart';
 import 'package:pet_match/src/utils/constant.dart';
 
@@ -25,11 +28,23 @@ class _UserScreenState extends State<UserScreen> {
   @override
   void initState() {
     super.initState();
-    _bloc = BlocProvider.of<ProfileBloc>(context)..add(GetCurrentProfile());
+    _bloc = BlocProvider.of<ProfileBloc>(context);
     _listener = _bloc.stream.listen((state) {
       if (state is ProfileLoggedOut) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, AppRoutes.profiles.name, (route) => false);
+        Navigator.pushNamed(context, AppRoutes.profiles.name)
+            .then((dynamic value) {
+          if (value[0] != null) {
+            setState(() {
+              profile = value[0] as Profile;
+              _bloc.add(LoginToProfile(profile!));
+            });
+          }
+        });
+      }
+      if (state is ProfileLoggedIn) {
+        setState(() {
+          profile = state.activeProfile;
+        });
       }
       if (state is CurrentProfileState) {
         setState(() {
@@ -60,31 +75,42 @@ class _UserScreenState extends State<UserScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const Padding(
-                padding: EdgeInsets.only(top: 32),
-                child: Text("Hồ sơ",
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                padding: EdgeInsets.only(top: 32, left: 40),
+                child: Text(
+                  "Hồ sơ",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
+                ),
               ),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20)
                     .copyWith(top: 20),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
-                  color: Resource.primaryTintColor,
+                  color: const Color(0xFF8cd2b6).withOpacity(0.3),
                   borderRadius: Resource.defaultBorderRadius,
                 ),
                 child: Column(
                   children: [
                     InkWell(
-                      onTap: () => dev.log('view detail profile'),
-                      borderRadius: BorderRadius.circular(8),
-                      splashColor: Resource.primaryTintColor,
+                      borderRadius: Resource.defaultBorderRadius,
+                      onTap: () {
+                        final args = ProfileDetailScreenArguments(
+                          profile: profile!,
+                          isMe: true,
+                          isLiked: false,
+                        );
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.profileDetails.name,
+                          arguments: args,
+                        );
+                      },
+                      splashColor: const Color(0xFF8cd2b6).withOpacity(0.3),
                       overlayColor: MaterialStateColor.resolveWith(
-                          (states) => Resource.primaryTintColor),
+                          (states) => const Color(0xFF8cd2b6).withOpacity(0.3)),
                       child: Ink(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(28),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -138,50 +164,94 @@ class _UserScreenState extends State<UserScreen> {
                         ),
                       ),
                     ),
-                    Divider(color: Colors.black.withOpacity(0.5), height: 30),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      splashColor: Resource.primaryTintColor,
-                      overlayColor: MaterialStateColor.resolveWith(
-                          (states) => Resource.primaryTintColor),
-                      onTap: () => _bloc.add(LogoutOfProfile()),
-                      child: Ink(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: 10,
-                        ),
-                        child: Row(
-                          children: const [
-                            Icon(Icons.power_settings_new_rounded),
-                            SizedBox(width: 10),
-                            Expanded(child: Text('Đổi hồ sơ')),
-                          ],
-                        ),
-                      ),
-                    )
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 8),
               ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  ListTile(
-                    leading: const Icon(Icons.logout_rounded),
-                    title: const Text('Đăng xuất'),
+                  CustomListTile(
+                    leading: const Icon(Icons.workspace_premium_rounded),
+                    title: const Text('Đăng kí gói'),
+                    onTap: () {
+                      Navigator.pushNamed(
+                          context, AppRoutes.premiumRegister.name);
+                    },
+                  ),
+                  Divider(color: Colors.black.withOpacity(0.1), height: 30),
+                  CustomListTile(
+                    leading: const Icon(Icons.swap_horizontal_circle_rounded),
+                    title: const Text("Chuyển hồ sơ"),
+                    onTap: () => _bloc.add(LogoutOfProfile()),
+                  ),
+                  CustomListTile(
+                    leading: const Icon(
+                      Icons.logout_rounded,
+                      color: Colors.red,
+                    ),
+                    title: const Text(
+                      'Đăng xuất',
+                      style: TextStyle(color: Colors.red),
+                    ),
                     onTap: () {
                       BlocProvider.of<AuthBloc>(context).add(SignOutRequest());
-                      dev.log('log out');
+                      // MyInheritedWidget.of(context)
+                      //     ?.authBloc
+                      //     .add(SignOutRequest());
                     },
-                    dense: false,
                   ),
                 ],
               )
             ],
           );
         }),
+      ),
+    );
+  }
+}
+
+class CustomListTile extends StatelessWidget {
+  const CustomListTile(
+      {super.key,
+      this.onTap,
+      this.title,
+      this.leading,
+      this.isThreeLine = false,
+      this.subTitle,
+      this.trailing});
+
+  final Function()? onTap;
+  final Widget? title;
+  final Widget? leading;
+  final bool isThreeLine;
+  final Widget? subTitle;
+  final Widget? trailing;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: Resource.defaultBorderRadius,
+          splashColor: const Color(0x448BD2B6),
+          overlayColor: MaterialStateColor.resolveWith(
+            (states) => const Color(0x448BD2B6),
+          ),
+          onTap: onTap,
+          child: ListTile(
+            trailing: trailing,
+            isThreeLine: isThreeLine,
+            subtitle: subTitle,
+            minLeadingWidth: 0,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+            leading: leading,
+            title: title,
+          ),
+        ),
       ),
     );
   }

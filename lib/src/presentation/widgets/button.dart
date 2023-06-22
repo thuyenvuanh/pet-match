@@ -10,7 +10,7 @@ class Button extends StatefulWidget {
     required this.label,
     required this.onTap,
     this.variant = ButtonVariant.primary,
-    this.color = Colors.white,
+    this.color,
     this.style = const TextStyle(
       color: Colors.white,
       fontSize: 16,
@@ -20,6 +20,8 @@ class Button extends StatefulWidget {
     this.height = 56,
     this.width,
     this.padding,
+    this.leadingIcon,
+    this.textAlign,
   });
 
   final ButtonVariant variant;
@@ -31,6 +33,8 @@ class Button extends StatefulWidget {
   final double? height;
   final double? width;
   final EdgeInsets? padding;
+  final Widget? leadingIcon;
+  final TextAlign? textAlign;
 
   @override
   State<Button> createState() => _ButtonState();
@@ -43,22 +47,50 @@ class _ButtonState extends State<Button> {
       padding: widget.padding ?? const EdgeInsets.all(0),
       child: Material(
         elevation: 0,
+        color: Colors.transparent,
         borderRadius: widget.borderRadius ?? Resource.defaultBorderRadius,
         child: InkWell(
+          // splashColor: Resource.primaryTintColor,
+          overlayColor: MaterialStateColor.resolveWith(
+            (states) {
+              if (widget.variant == ButtonVariant.text) {
+                return Resource.primaryTintColor;
+              }
+              return Colors.white.withOpacity(0.3);
+            },
+          ),
           onTap: widget.onTap,
           borderRadius: widget.borderRadius ?? Resource.defaultBorderRadius,
           child: Ink(
             height: widget.height,
             width: widget.width ?? context.screenSize.width,
             decoration: BoxDecoration(
-              color: widget.variant == ButtonVariant.primary
-                  ? Resource.primaryColor
-                  : Colors.white,
+              color: widget.color ??
+                  (widget.variant == ButtonVariant.primary
+                      ? Resource.primaryColor
+                      : Colors.white),
               borderRadius: widget.borderRadius ?? Resource.defaultBorderRadius,
             ),
-            child: Center(
-              child: Text(widget.label, style: widget.style),
-            ),
+            child: widget.leadingIcon == null
+                ? Center(
+                    child: Text(
+                      widget.label,
+                      style: widget.style,
+                      textAlign: widget.textAlign,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      widget.leadingIcon!,
+                      const SizedBox(width: 10),
+                      Text(
+                        widget.label,
+                        style: widget.style,
+                        textAlign: widget.textAlign,
+                      )
+                    ],
+                  ),
           ),
         ),
       ),
