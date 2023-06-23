@@ -24,8 +24,8 @@ class DevHttpOverrides extends HttpOverrides {
 
 class RestClient {
   // static const _host = "18.143.40.6";
-  static const _host = "10.0.2.2";
-  static const _port = 8443;
+  static const _host = "anhthuyen.tech";
+  static const _port = null;
   static const _scheme = "https";
 
   static const _authKey = 'authToken';
@@ -35,15 +35,12 @@ class RestClient {
     'Accept-Charset': "UTF-8"
   };
 
-  static bool _certificateCheck(X509Certificate cert, String host, int port) =>
-      host == 'local.domain.ext'; //
+  // static bool _certificateCheck(X509Certificate cert, String host, int port) =>
+  //     host == 'local.domain.ext'; //
 
   final SharedPreferences localStorage;
 
-  RestClient(this.localStorage)
-      : client = HttpClient()..badCertificateCallback = (_certificateCheck);
-
-  final HttpClient client;
+  RestClient(this.localStorage);
 
   Future<AuthorizationToken?> _isTokenExpired(AuthorizationToken token) async {
     final decodedToken = JwtDecoder.decode(token.accessToken!);
